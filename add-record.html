@@ -210,11 +210,16 @@
 
             <label for="doctor">Attending Doctor:</label>
             <input type="text" id="doctor" name="doctor" placeholder="Enter doctor's name" required>
+            <label for="medical_files">Upload Medical Files:</label>
+            <input type="file" id="medical_files" name="medical_files" multiple accept=".pdf,.jpg,.jpeg,.png">
+            <small>You can upload multiple files (PDF, JPG, PNG, etc.)</small>
+
 
             <button type="submit"
                 style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
                 Save Record
             </button>
+            
         </form>
     </div>
     <script src="add-record.js"></script>
@@ -224,3 +229,4 @@
 </body>
 
 </html>
+
