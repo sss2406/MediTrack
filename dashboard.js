@@ -15,25 +15,25 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        records.forEach((record, index) => {
-            let box = document.createElement("div");
-            box.className = "record-box";
+       records.forEach((record, index) => {
+    let box = document.createElement("div");
+    box.className = "record-box";
 
-            box.innerHTML = `
-                <h3>Patient #${index + 1}</h3>
-                <p><strong>Name:</strong> ${record.name}</p>
-                <p><strong>Age:</strong> ${record.age}</p>
-                <p><strong>Gender:</strong> ${record.gender}</p>
-                <p><strong>Mobile:</strong> ${record.mobile}</p>
-                <p><strong>Email:</strong> ${record.email}</p>
-                <p><strong>Diagnosis:</strong> ${record.diagnosis}</p>
+    let recordHTML = `<h3>Patient #${index + 1}</h3>`;
+    
+    for (let key in record) {
+        recordHTML += `<p><strong>${key.replace(/_/g, " ")}:</strong> ${record[key]}</p>`;
+    }
 
-                <button class="edit-btn" data-index="${index}">Edit</button>
-                <button class="delete-btn" data-index="${index}">Delete</button>
-            `;
+    recordHTML += `
+        <button class="edit-btn" data-index="${index}">Edit</button>
+        <button class="delete-btn" data-index="${index}">Delete</button>
+    `;
 
-            container.appendChild(box);
-        });
+    box.innerHTML = recordHTML;
+    container.appendChild(box);
+});
+
         document.querySelectorAll(".delete-btn").forEach(btn => {
             btn.addEventListener("click", function () {
                 let index = this.getAttribute("data-index");
@@ -63,4 +63,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
     loadRecords();
 });
+
 
