@@ -8,7 +8,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         for (let key in record) {
             if (document.getElementById(key)) {
-                document.getElementById(key).value = record[key];
+                if(key === "medical_files") {
+                    // file inputs cannot be prefilled due to browser restrictions
+                    continue;
+                } else {
+                    document.getElementById(key).value = record[key];
+                }
             }
         }
     }
@@ -19,17 +24,25 @@ document.addEventListener("DOMContentLoaded", function () {
         let newRecord = {};
         let fields = [
             "name","mobile","email","age","gender","height","weight","blood_pressure",
-            "heart_rate","temperature","follow_up","symptoms","diagnosis","medications","notes","doctor"
+            "heart_rate","temperature","follow_up","symptoms","diagnosis","medications",
+            "notes","doctor","medical_files"
         ];
 
         fields.forEach(f => {
-            newRecord[f] = document.getElementById(f).value;
+            if(f === "medical_files") {
+                const files = document.getElementById(f).files;
+                newRecord[f] = [];
+                for(let i = 0; i < files.length; i++){
+                    newRecord[f].push(files[i].name); // store file names
+                }
+            } else {
+                newRecord[f] = document.getElementById(f).value;
+            }
         });
 
         let records = JSON.parse(localStorage.getItem("patientRecords")) || [];
 
         if (editIndex !== null) {
-
             records[editIndex] = newRecord;
             localStorage.removeItem("editIndex");
             alert("Record Updated Successfully!");
@@ -42,3 +55,4 @@ document.addEventListener("DOMContentLoaded", function () {
         form.reset();
     });
 });
+
