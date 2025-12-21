@@ -5,64 +5,70 @@
   <title>MediTrack Dashboard</title>
 
   <style>
-  body {
-    background-image: url('health-bg.jpg'); 
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    body {
+      background-image: url('health-bg.jpg'); 
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    font-family: Arial, sans-serif;
-  }
+    .dashboard {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 40px;
+      border-radius: 12px;
+      width: 480px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    }
 
-  .dashboard {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 40px;
-    border-radius: 12px;
-    width: 480px;
-    text-align: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-  }
+    button {
+      margin-top: 20px;
+      padding: 12px 25px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
 
-  button {
-    margin-top: 20px;
-    padding: 12px 25px;
-    font-size: 16px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  button:hover {
-    background-color: #45a049;
-  }
-</style>
-
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="dashboard">
+    <h1>MediTrack Dashboard</h1>
 
-<div class="dashboard">
-  <h1>MediTrack Dashboard</h1>
+    <p>
+      All patient records submitted through MediTrack are securely
+      stored in Google Sheets.
+    </p>
 
-  <p>
-    All patient records submitted through MediTrack are securely
-    stored in Google Sheets.
-  </p>
+    <button onclick="openSheet()">Go to Google Sheets</button>
+  </div>
 
-  <button onclick="openSheet()">Go to Google Sheets</button>
-</div>
-
-<script src="dashboard.js"></script>
+  <script>
+    function openSheet() {
+      window.open(
+        "https://script.google.com/macros/s/AKfycbxiqRFNgSgLnu41HhG3AnAOW4aiUxgIvD1Jfs72UvH3_51r7xTrL5id1XYw6defysy5xw/exec",
+        "_blank"
+      );
+    }
+  </script>
 </body>
 </html>
+
+
 
 
 
