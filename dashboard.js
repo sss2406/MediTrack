@@ -1,5 +1,5 @@
 
-const scriptUrl = "https://script.google.com/macros/s/AKfycbyiTs9jTs_5r0-idIqpAZY-uoI4gHepKPA-ht8rciudWesWxK7YipYPaNpvDT-j_cOxIA/exec";
+const scriptUrl = "https://script.google.com/macros/s/AKfycbyJCWn1fvwuukE8Dg1ilQTs9hcFubwlpeEGEq4PYIS22elDsUKJdzjhJqnFccwXL2FpJQ/exec";
 
 document.getElementById("openSheetBtn").addEventListener("click", function() {
   
@@ -12,6 +12,7 @@ document.getElementById("openSheetBtn").addEventListener("click", function() {
     document.getElementById("errorMsg").textContent = "";
   }
 });
+
 
 
 
