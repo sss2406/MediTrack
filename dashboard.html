@@ -1,90 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>MediTrack Dashboard</title>
+<style>
+  body {
+    background-image: url('health-bg.jpg'); /* SAME IMAGE AS index.html */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 
-  <style>
-    body {
-      background-image: url('health-bg.jpg'); 
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      font-family: Arial, sans-serif;
-    }
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
 
-    .dashboard {
-      background: rgba(255, 255, 255, 0.9);
-      padding: 40px;
-      border-radius: 12px;
-      width: 480px;
-      text-align: center;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-    }
+  .dashboard {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 40px;
+    border-radius: 12px;
+    width: 480px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  }
 
-    button {
-      margin-top: 20px;
-      padding: 12px 25px;
-      font-size: 16px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
+  button {
+    margin-top: 20px;
+    padding: 12px 25px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
 
-    button:hover {
-      background-color: #45a049;
-    }
-
-    .error {
-      color: red;
-      margin-top: 15px;
-      font-size: 14px;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="dashboard">
-    <h1>MediTrack Dashboard</h1>
-
-    <p>
-      All patient records submitted through MediTrack are securely
-      stored in Google Sheets.
-    </p>
-
-    <button id="openSheetBtn">Go to Google Sheets</button>
-    <p id="errorMsg" class="error"></p>
-  </div>
-
-  <script>
-    
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbxiqRFNgSgLnu41HhG3AnAOW4aiUxgIvD1Jfs72UvH3_51r7xTrL5id1XYw6defysy5xw/exec";
-
-    document.getElementById("openSheetBtn").addEventListener("click", function() {
-      try {
-        const newWindow = window.open(scriptUrl, "_blank");
-        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-          
-          document.getElementById("errorMsg").textContent = "Pop-up blocked! Please allow pop-ups in your browser.";
-        }
-      } catch (err) {
-        document.getElementById("errorMsg").textContent = "Unable to open Google Sheets. Check your URL and browser settings.";
-        console.error(err);
-      }
-    });
-  </script>
-</body>
-</html>
-
-
+  button:hover {
+    background-color: #45a049;
+  }
+</style>
 
 
 
