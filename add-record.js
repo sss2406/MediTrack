@@ -20,15 +20,22 @@ document.addEventListener("DOMContentLoaded", function () {
       body: JSON.stringify(data),
       headers: { "Content-Type": "application/json" }
     })
-    .then(() => {
-      alert("Record submitted successfully!");
-      form.reset();
-   
+    .then(response => response.json()) 
+    .then(res => {
+      if (res.status === "success") {
+        alert("Record submitted successfully!");
+        form.reset();
+      } else {
+        alert("Failed to submit record: " + (res.message || "Unknown error"));
+      }
+    })
+    .catch(err => {
+      console.error("Error:", err);
+      alert("Failed to submit record. Check Apps Script deployment and permissions.");
+    });
   });
 
 });
-
-
 
 
 
