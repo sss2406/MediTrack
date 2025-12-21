@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Add Patient Record</title>
+<title>Patient Record</title>
 
 <style>
 body{
@@ -12,82 +12,91 @@ body{
   align-items:center;
   min-height:100vh;
   margin:0;
-  background:linear-gradient(135deg,#5f2c82,#49a09d);
-  font-family:Arial,sans-serif;
+  background-image:url('health-bg.jpg');
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+  font-family:'Gill Sans','Gill Sans MT',Calibri,'Trebuchet MS',sans-serif;
 }
 
 .one{
-  width:85%;
   max-width:1200px;
-  background:#fff;
+  width:85%;
+  background:#ccc;
   padding:40px;
-  border-radius:12px;
-  box-shadow:0 10px 25px rgba(0,0,0,.25);
+  border-radius:15px;
+  box-shadow:0 0 25px rgba(0,0,0,.2);
+  box-sizing:border-box;
 }
 
 h1{text-align:center;margin-bottom:30px}
 
 label{
   display:block;
-  margin-top:15px;
-  font-weight:bold;
+  margin-top:20px;
+  margin-bottom:8px;
+  font-size:1.3em;
+  font-weight:600;
 }
 
 input,select,textarea{
   width:100%;
-  padding:12px;
-  margin-top:6px;
-  border-radius:6px;
+  padding:14px;
+  font-size:18px;
+  border-radius:5px;
   border:1px solid #ccc;
-  font-size:16px;
+  margin-bottom:20px;
+  box-sizing:border-box;
+  outline:none;
 }
 
 textarea{resize:vertical}
 
-.form-row{display:flex;gap:20px}
+.form-row{display:flex;gap:30px}
 .form-group{flex:1}
 
 button{
-  margin-top:25px;
-  width:100%;
-  padding:14px;
-  font-size:18px;
   background:#4CAF50;
-  color:#fff;
+  color:white;
+  padding:14px;
   border:none;
-  border-radius:6px;
+  border-radius:5px;
+  font-size:18px;
+  width:100%;
   cursor:pointer;
+  font-weight:bold;
 }
 
-button:hover{background:#43a047}
+button:hover{background:#45a049}
 </style>
 </head>
 
 <body>
 
 <div class="one">
-<h1>Add Patient Record</h1>
+<h1><strong>Add Patient Record</strong></h1>
 
 <form id="patientForm">
 
 <label>Patient Name</label>
-<input type="text" name="name" required>
+<input type="text" name="name" placeholder="Enter full name" required>
 
 <div class="form-row">
   <div class="form-group">
     <label>Mobile Number</label>
-    <input type="tel" name="mobile" pattern="[0-9]{10}" required>
+    <input type="tel" name="mobile" placeholder="Enter mobile number" pattern="[0-9]{10}" required>
   </div>
   <div class="form-group">
     <label>Email</label>
-    <input type="email" name="email" required>
+    <input type="email" name="email" placeholder="Enter email address" required>
   </div>
 </div>
 
 <div class="form-row">
   <div class="form-group">
     <label>Age</label>
-    <input type="number" name="age" required>
+    <input type="number" name="age" placeholder="Enter age" required>
   </div>
   <div class="form-group">
     <label>Gender</label>
@@ -103,11 +112,11 @@ button:hover{background:#43a047}
 <div class="form-row">
   <div class="form-group">
     <label>Height (cm)</label>
-    <input type="number" name="height" required>
+    <input type="number" name="height" placeholder="Enter height in cm" required>
   </div>
   <div class="form-group">
     <label>Weight (kg)</label>
-    <input type="number" name="weight" required>
+    <input type="number" name="weight" placeholder="Enter weight in kg" required>
   </div>
 </div>
 
@@ -118,14 +127,14 @@ button:hover{background:#43a047}
   </div>
   <div class="form-group">
     <label>Heart Rate (bpm)</label>
-    <input type="number" name="heart_rate" required>
+    <input type="number" name="heart_rate" placeholder="Enter heart rate" required>
   </div>
 </div>
 
 <div class="form-row">
   <div class="form-group">
-    <label>Temperature (°C)</label>
-    <input type="number" step="0.1" name="temperature" required>
+    <label>Body Temperature (°C)</label>
+    <input type="number" step="0.1" name="temperature" placeholder="Enter temperature" required>
   </div>
   <div class="form-group">
     <label>Follow-up Date</label>
@@ -134,19 +143,23 @@ button:hover{background:#43a047}
 </div>
 
 <label>Symptoms</label>
-<textarea name="symptoms" rows="3" required></textarea>
+<textarea name="symptoms" rows="4" placeholder="Describe symptoms" required></textarea>
 
 <label>Diagnosis</label>
-<textarea name="diagnosis" rows="3" required></textarea>
+<textarea name="diagnosis" rows="4" placeholder="Enter diagnosis" required></textarea>
 
 <label>Medications</label>
-<textarea name="medications" rows="3" required></textarea>
+<textarea name="medications" rows="4" placeholder="List medications" required></textarea>
 
 <label>Additional Notes</label>
-<textarea name="notes" rows="3"></textarea>
+<textarea name="notes" rows="4" placeholder="Any additional notes"></textarea>
 
 <label>Attending Doctor</label>
-<input type="text" name="doctor" required>
+<input type="text" name="doctor" placeholder="Doctor name" required>
+
+<label>Upload Medical Files</label>
+<input type="file" name="medical_files" multiple accept=".pdf,.jpg,.jpeg,.png">
+<small>Files are optional</small>
 
 <button type="submit">Save Record</button>
 
@@ -157,7 +170,7 @@ button:hover{background:#43a047}
 </body>
 </html>
 
-</html>
+
 
 
 
