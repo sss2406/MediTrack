@@ -2,8 +2,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const form = document.getElementById("patientForm");
 
-  
-  const scriptURL = "https://script.google.com/macros/s/AKfycbyJCWn1fvwuukE8Dg1ilQTs9hcFubwlpeEGEq4PYIS22elDsUKJdzjhJqnFccwXL2FpJQ/exec";
+
+  const scriptURL = "https://script.google.com/macros/s/AKfycbzzg61nQ9Gtofe4LZp0IJeNZKxihgFjhmD1ndQNH6ZQmhpf937ZOOLDu-NfTsbNEolt8w/exec";
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let data = {};
 
     formData.forEach((value, key) => {
-      if (key !== "medical_files") {  
+      if (key !== "medical_files") {
         data[key] = value;
       }
     });
@@ -33,6 +33,8 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
 });
+
+
 
 
 
