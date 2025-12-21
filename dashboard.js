@@ -1,9 +1,10 @@
 function openScriptApp() {
   window.open(
-    "https://script.google.com/macros/s/AKfycbxiqRFNgSgLnu41HhG3AnAOW4aiUxgIvD1Jfs72UvH3_51r7xTrL5id1XYw6defysy5xw/exec",
+    "https://script.google.com/macros/s/https://script.google.com/macros/s/AKfycbyiTs9jTs_5r0-idIqpAZY-uoI4gHepKPA-ht8rciudWesWxK7YipYPaNpvDT-j_cOxIA/exec/exec",
     "_blank"
   );
 }
+
 
 
 
