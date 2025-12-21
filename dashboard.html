@@ -2,51 +2,58 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MediTrack Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #5f2c82, #49a09d);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .dashboard {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      width: 480px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 25px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
 </head>
+
 <body>
-  
-  <header>
-    <h1>MediTrack Dashboard</h1>
-  </header>
 
-  <aside>
-    <h2>Menu</h2>
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="add-record.html">Add Record</a></li>
-    </ul>
-  </aside>
+<div class="dashboard">
+  <h1>MediTrack Dashboard</h1>
 
-  <main>
-    <div class="dashboard-grid">
-      <div class="dashboard-box">
-          <h2>Total Patients</h2>
-          <p id="totalPatients">0</p>
-      </div>
-    </div>
+  <p>
+    All patient records submitted through MediTrack are securely
+    stored in Google Sheets.
+  </p>
 
-    <!-- Search Section -->
-    <div style="text-align:center; margin-bottom:20px;">
-      <input type="text" id="searchInput" placeholder="Search by Name, Mobile, or Doctor" style="padding:10px; width:50%; font-size:16px;">
-      <button id="searchBtn" style="padding:10px 20px; font-size:16px; margin-left:10px;">Search</button>
-      <button id="resetBtn" style="padding:10px 20px; font-size:16px; margin-left:10px;">Reset</button>
-    </div>
+  <button onclick="openSheet()">Go to Google Sheets</button>
+</div>
 
-    <!-- Container for Patient Records -->
-    <div id="recordsContainer"></div>
-  </main>
-
-  <footer>
-    @MediTrack, created using HTML, CSS and JavaScript
-  </footer>
-
-  <script src="dashboard.js"></script>
-
+<script src="dashboard.js"></script>
 </body>
 </html>
+
 
 
 
