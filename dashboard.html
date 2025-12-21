@@ -42,6 +42,12 @@
     button:hover {
       background-color: #45a049;
     }
+
+    .error {
+      color: red;
+      margin-top: 15px;
+      font-size: 14px;
+    }
   </style>
 </head>
 
@@ -54,22 +60,29 @@
       stored in Google Sheets.
     </p>
 
-    <button onclick="openSheet()">Go to Google Sheets</button>
+    <button id="openSheetBtn">Go to Google Sheets</button>
+    <p id="errorMsg" class="error"></p>
   </div>
 
   <script>
-    function openSheet() {
-      window.open(
-        "https://script.google.com/macros/s/AKfycbxiqRFNgSgLnu41HhG3AnAOW4aiUxgIvD1Jfs72UvH3_51r7xTrL5id1XYw6defysy5xw/exec",
-        "_blank"
-      );
-    }
+    
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbxiqRFNgSgLnu41HhG3AnAOW4aiUxgIvD1Jfs72UvH3_51r7xTrL5id1XYw6defysy5xw/exec";
+
+    document.getElementById("openSheetBtn").addEventListener("click", function() {
+      try {
+        const newWindow = window.open(scriptUrl, "_blank");
+        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+          
+          document.getElementById("errorMsg").textContent = "Pop-up blocked! Please allow pop-ups in your browser.";
+        }
+      } catch (err) {
+        document.getElementById("errorMsg").textContent = "Unable to open Google Sheets. Check your URL and browser settings.";
+        console.error(err);
+      }
+    });
   </script>
 </body>
 </html>
-
-
-
 
 
 
