@@ -1,136 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Add Patient Record</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Patient Record</title>
 
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      background: linear-gradient(135deg, #5f2c82, #49a09d);
-      font-family: Arial, sans-serif;
-    }
+<style>
+body{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  margin:0;
+  background:linear-gradient(135deg,#5f2c82,#49a09d);
+  font-family:Arial,sans-serif;
+}
 
-    .one {
-      width: 85%;
-      max-width: 1200px;
-      background: #ffffff;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-    }
+.one{
+  width:85%;
+  max-width:1200px;
+  background:#fff;
+  padding:40px;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,.25);
+}
 
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
+h1{text-align:center;margin-bottom:30px}
 
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
+label{
+  display:block;
+  margin-top:15px;
+  font-weight:bold;
+}
 
-    input, select, textarea {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
+input,select,textarea{
+  width:100%;
+  padding:12px;
+  margin-top:6px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  font-size:16px;
+}
 
-    textarea {
-      resize: vertical;
-    }
+textarea{resize:vertical}
 
-    .form-row {
-      display: flex;
-      gap: 20px;
-    }
+.form-row{display:flex;gap:20px}
+.form-group{flex:1}
 
-    .form-group {
-      flex: 1;
-    }
+button{
+  margin-top:25px;
+  width:100%;
+  padding:14px;
+  font-size:18px;
+  background:#4CAF50;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
 
-    button {
-      margin-top: 25px;
-      width: 100%;
-      padding: 14px;
-      font-size: 18px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #43a047;
-    }
-  </style>
+button:hover{background:#43a047}
+</style>
 </head>
 
 <body>
 
 <div class="one">
-  <h1>Add Patient Record</h1>
+<h1>Add Patient Record</h1>
 
-  <form id="patientForm">
+<form id="patientForm">
 
-    <label>Patient Name</label>
-    <input type="text" name="name" required>
+<label>Patient Name</label>
+<input type="text" name="name" required>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>Mobile</label>
-        <input type="tel" name="mobile" required>
-      </div>
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" name="email" required>
-      </div>
-    </div>
+<div class="form-row">
+  <div class="form-group">
+    <label>Mobile Number</label>
+    <input type="tel" name="mobile" pattern="[0-9]{10}" required>
+  </div>
+  <div class="form-group">
+    <label>Email</label>
+    <input type="email" name="email" required>
+  </div>
+</div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>Age</label>
-        <input type="number" name="age" required>
-      </div>
-      <div class="form-group">
-        <label>Gender</label>
-        <select name="gender" required>
-          <option value="">SELECT</option>
-          <option>Male</option>
-          <option>Female</option>
-          <option>Other</option>
-        </select>
-      </div>
-    </div>
+<div class="form-row">
+  <div class="form-group">
+    <label>Age</label>
+    <input type="number" name="age" required>
+  </div>
+  <div class="form-group">
+    <label>Gender</label>
+    <select name="gender" required>
+      <option value="">SELECT</option>
+      <option>Male</option>
+      <option>Female</option>
+      <option>Other</option>
+    </select>
+  </div>
+</div>
 
-    <label>Symptoms</label>
-    <textarea name="symptoms" required></textarea>
+<div class="form-row">
+  <div class="form-group">
+    <label>Height (cm)</label>
+    <input type="number" name="height" required>
+  </div>
+  <div class="form-group">
+    <label>Weight (kg)</label>
+    <input type="number" name="weight" required>
+  </div>
+</div>
 
-    <label>Diagnosis</label>
-    <textarea name="diagnosis" required></textarea>
+<div class="form-row">
+  <div class="form-group">
+    <label>Blood Pressure</label>
+    <input type="text" name="blood_pressure" placeholder="120/80" required>
+  </div>
+  <div class="form-group">
+    <label>Heart Rate (bpm)</label>
+    <input type="number" name="heart_rate" required>
+  </div>
+</div>
 
-    <label>Medications</label>
-    <textarea name="medications" required></textarea>
+<div class="form-row">
+  <div class="form-group">
+    <label>Temperature (°C)</label>
+    <input type="number" step="0.1" name="temperature" required>
+  </div>
+  <div class="form-group">
+    <label>Follow-up Date</label>
+    <input type="date" name="follow_up" required>
+  </div>
+</div>
 
-    <label>Doctor</label>
-    <input type="text" name="doctor" required>
+<label>Symptoms</label>
+<textarea name="symptoms" rows="3" required></textarea>
 
-    <button type="submit">Save Record</button>
+<label>Diagnosis</label>
+<textarea name="diagnosis" rows="3" required></textarea>
 
-  </form>
+<label>Medications</label>
+<textarea name="medications" rows="3" required></textarea>
+
+<label>Additional Notes</label>
+<textarea name="notes" rows="3"></textarea>
+
+<label>Attending Doctor</label>
+<input type="text" name="doctor" required>
+
+<button type="submit">Save Record</button>
+
+</form>
 </div>
 
 <script src="add-record.js"></script>
 </body>
 </html>
+
+</html>
+
 
 
