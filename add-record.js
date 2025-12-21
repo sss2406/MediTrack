@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const form = document.querySelector("#patientForm");
   let editIndex = localStorage.getItem("editIndex");
 
-  // ---------- LOAD RECORD FOR EDIT ----------
+
   if (editIndex !== null) {
     const records = JSON.parse(localStorage.getItem("patientRecords")) || [];
     const record = records[editIndex];
@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!field) continue;
 
         if (key === "medical_files") {
-          // Files cannot be prefilled for security reasons
+          
           continue;
         } else {
           field.value = record[key];
@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // ---------- FORM SUBMIT ----------
+  
   form.addEventListener("submit", function (event) {
     event.preventDefault();
 
@@ -65,6 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
 });
+
 
 
 
