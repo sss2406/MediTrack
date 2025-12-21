@@ -1,58 +1,30 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.querySelector("form");
-    let editIndex = localStorage.getItem("editIndex");
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("patientForm");
 
-    if (editIndex !== null) {
-        let records = JSON.parse(localStorage.getItem("patientRecords")) || [];
-        let record = records[editIndex];
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxiqRFNgSgLnu41HhG3AnAOW4aiUxgIvD1Jfs72UvH3_51r7xTrL5id1XYw6defysy5xw/exec";
 
-        for (let key in record) {
-            if (document.getElementById(key)) {
-                if(key === "medical_files") {
-                    // file inputs cannot be prefilled due to browser restrictions
-                    continue;
-                } else {
-                    document.getElementById(key).value = record[key];
-                }
-            }
-        }
-    }
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-    form.addEventListener("submit", function (event) {
-        event.preventDefault();
+    const data = Object.fromEntries(new FormData(form));
 
-        let newRecord = {};
-        let fields = [
-            "name","mobile","email","age","gender","height","weight","blood_pressure",
-            "heart_rate","temperature","follow_up","symptoms","diagnosis","medications",
-            "notes","doctor","medical_files"
-        ];
+    try {
+      const response = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(data)
+      });
 
-        fields.forEach(f => {
-            if(f === "medical_files") {
-                const files = document.getElementById(f).files;
-                newRecord[f] = [];
-                for(let i = 0; i < files.length; i++){
-                    newRecord[f].push(files[i].name); // store file names
-                }
-            } else {
-                newRecord[f] = document.getElementById(f).value;
-            }
-        });
+      const result = await response.json();
 
-        let records = JSON.parse(localStorage.getItem("patientRecords")) || [];
-
-        if (editIndex !== null) {
-            records[editIndex] = newRecord;
-            localStorage.removeItem("editIndex");
-            alert("Record Updated Successfully!");
-        } else {
-            records.push(newRecord);
-            alert("Record Added Successfully!");
-        }
-
-        localStorage.setItem("patientRecords", JSON.stringify(records));
+      if (result.status === "success") {
+        alert("Patient record saved to Google Sheets!");
         form.reset();
-    });
+      }
+    } catch (err) {
+      alert("Failed to save record");
+      console.error(err);
+    }
+  });
 });
+
 
