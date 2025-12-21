@@ -23,14 +23,11 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(() => {
       alert("Record submitted successfully!");
       form.reset();
-    })
-    .catch(err => {
-      console.error("Error:", err);
-      alert("Failed to submit record. Check Apps Script deployment and permissions.");
-    });
+   
   });
 
 });
+
 
 
 
