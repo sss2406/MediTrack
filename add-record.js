@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("patientForm");
 
   
-  const scriptURL = "https://script.google.com/macros/s/AKfycbx79rWGdf7wGq7WuZA6z9gJaNBtupMa8Hw2RO6dABPCYcJmjFL5Nbbp8Q3OFfhJjoXQ1A/exec";
+  const scriptURL = "https://script.google.com/macros/s/AKfycbzKAIZfKUyztFFmojEx2nTt-y48WFVn-WxIZE9JJ5anWvDRaBaBK9EXmTbcbQxSstpFWw/exec";
 
   form.addEventListener("submit", function (e) {
     e.preventDefault(); 
@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
 
 
 
