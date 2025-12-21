@@ -4,87 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Patient Record</title>
-
 <style>
-body{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  margin:0;
-  background-image:url('health-bg.jpg');
-  background-size:cover;
-  background-position:center;
-  background-repeat:no-repeat;
-  background-attachment:fixed;
-  font-family:'Gill Sans','Gill Sans MT',Calibri,'Trebuchet MS',sans-serif;
-}
-
-.one{
-  max-width:1200px;
-  width:85%;
-  background:#ccc;
-  padding:40px;
-  border-radius:15px;
-  box-shadow:0 0 25px rgba(0,0,0,.2);
-  box-sizing:border-box;
-}
-
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background-image:url('health-bg.jpg');background-size:cover;font-family:'Gill Sans',sans-serif;}
+.one{max-width:1200px;width:85%;background:#ccc;padding:40px;border-radius:15px;box-shadow:0 0 25px rgba(0,0,0,.2);}
 h1{text-align:center;margin-bottom:30px}
-
-label{
-  display:block;
-  margin-top:20px;
-  margin-bottom:8px;
-  font-size:1.3em;
-  font-weight:600;
-}
-
-input,select,textarea{
-  width:100%;
-  padding:14px;
-  font-size:18px;
-  border-radius:5px;
-  border:1px solid #ccc;
-  margin-bottom:20px;
-  box-sizing:border-box;
-  outline:none;
-}
-
+label{display:block;margin-top:20px;margin-bottom:8px;font-size:1.3em;font-weight:600;}
+input,select,textarea{width:100%;padding:14px;font-size:18px;border-radius:5px;border:1px solid #ccc;margin-bottom:20px;box-sizing:border-box;outline:none;}
 textarea{resize:vertical}
-
-.form-row{display:flex;gap:30px}
-.form-group{flex:1}
-
-button{
-  padding:14px;
-  border:none;
-  border-radius:5px;
-  font-size:18px;
-  width:100%;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-.save-btn{
-  background:#4CAF50;
-  color:white;
-}
-
-.save-btn:hover{background:#45a049}
-
-.dashboard-btn{
-  background:#9e9e9e;
-  color:#000;
-  margin-top:15px;
-}
-
-.dashboard-btn:hover{
-  background:#bdbdbd;
-}
+.form-row{display:flex;gap:30px}.form-group{flex:1}
+button{padding:14px;border:none;border-radius:5px;font-size:18px;width:100%;cursor:pointer;font-weight:bold;}
+.save-btn{background:#4CAF50;color:white;margin-top:15px;}
+.save-btn:hover{background:#45a049;}
+.dashboard-btn{background:#9e9e9e;color:#000;margin-top:10px;}
+.dashboard-btn:hover{background:#bdbdbd;}
 </style>
 </head>
-
 <body>
 
 <div class="one">
@@ -122,57 +56,7 @@ button{
   </div>
 </div>
 
-<div class="form-row">
-  <div class="form-group">
-    <label>Height (cm)</label>
-    <input type="number" name="height" placeholder="Enter height in cm" required>
-  </div>
-  <div class="form-group">
-    <label>Weight (kg)</label>
-    <input type="number" name="weight" placeholder="Enter weight in kg" required>
-  </div>
-</div>
 
-<div class="form-row">
-  <div class="form-group">
-    <label>Blood Pressure</label>
-    <input type="text" name="blood_pressure" placeholder="120/80" required>
-  </div>
-  <div class="form-group">
-    <label>Heart Rate (bpm)</label>
-    <input type="number" name="heart_rate" placeholder="Enter heart rate" required>
-  </div>
-</div>
-
-<div class="form-row">
-  <div class="form-group">
-    <label>Body Temperature (°C)</label>
-    <input type="number" step="0.1" name="temperature" placeholder="Enter temperature" required>
-  </div>
-  <div class="form-group">
-    <label>Follow-up Date</label>
-    <input type="date" name="follow_up" required>
-  </div>
-</div>
-
-<label>Symptoms</label>
-<textarea name="symptoms" rows="4" placeholder="Describe symptoms" required></textarea>
-
-<label>Diagnosis</label>
-<textarea name="diagnosis" rows="4" placeholder="Enter diagnosis" required></textarea>
-
-<label>Medications</label>
-<textarea name="medications" rows="4" placeholder="List medications" required></textarea>
-
-<label>Additional Notes</label>
-<textarea name="notes" rows="4" placeholder="Any additional notes"></textarea>
-
-<label>Attending Doctor</label>
-<input type="text" name="doctor" placeholder="Doctor name" required>
-
-<label>Upload Medical Files</label>
-<input type="file" name="medical_files" multiple accept=".pdf,.jpg,.jpeg,.png">
-<small>Files are optional</small>
 
 <button type="submit" class="save-btn">Save Record</button>
 <button type="button" class="dashboard-btn" onclick="window.location.href='dashboard.html'">DASHBOARD</button>
