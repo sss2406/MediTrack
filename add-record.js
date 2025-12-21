@@ -12,27 +12,24 @@ document.addEventListener("DOMContentLoaded", function () {
     let data = {};
 
     formData.forEach((value, key) => {
-      if (key !== "medical_files") {
+      if (key !== "medical_files") {  
         data[key] = value;
       }
     });
 
     fetch(scriptURL, {
       method: "POST",
-      mode: "no-cors",   
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      headers: { "Content-Type": "application/json" }
     })
     .then(() => {
       alert("Record submitted successfully!");
       form.reset();
     })
-    .catch(() => {
-      alert("Error submitting record");
+    .catch(err => {
+      console.error("Error:", err);
+      alert("Failed to submit record. Check Apps Script deployment and permissions.");
     });
-
   });
 
 });
