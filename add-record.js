@@ -12,33 +12,32 @@ document.addEventListener("DOMContentLoaded", function () {
     let data = {};
 
     formData.forEach((value, key) => {
-      if (key === "medical_files") return; 
-      data[key] = value;
+      if (key !== "medical_files") {
+        data[key] = value;
+      }
     });
 
     fetch(scriptURL, {
       method: "POST",
-      body: JSON.stringify(data),
-      headers: { "Content-Type": "application/json" }
+      mode: "no-cors",   
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
     })
-    .then(res => res.json())
-    .then(response => {
-      if (response.status === "success") {
-        alert("Record saved to Google Sheets!");
-        form.reset();
-      } else {
-        alert("Error saving record.");
-      }
+    .then(() => {
+      alert("Record submitted successfully!");
+      form.reset();
     })
-    .catch(err => {
-      console.error(err);
-      alert("Failed to connect to server.");
+    .catch(() => {
+      alert("Error submitting record");
     });
+
   });
 
 });
 
-});
+
 
 
 
