@@ -1,9 +1,10 @@
 function openSheet() {
   window.open(
-    "https://docs.google.com/spreadsheets/d/https://script.google.com/macros/s/AKfycbxiqRFNgSgLnu41HhG3AnAOW4aiUxgIvD1Jfs72UvH3_51r7xTrL5id1XYw6defysy5xw/exec/edit",
+    "https://docs.google.com/spreadsheets/d/https://script.google.com/macros/s/1acpJkSULaSE4tX3QRmkrXsQayxJ33FJfGRWFH6SlCPq-o3BL2ONoDT5l/edit",
     "_blank"
   );
 }
+
 
 
 
