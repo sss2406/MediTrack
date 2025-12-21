@@ -1,13 +1,21 @@
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("patientForm");
 
+  
+  const scriptURL = "https://script.google.com/macros/s/AKfycbx2YAnc6QKz1nEWJEGkS0dG_wW7JoefzWQzSAbw4i0Y5IQTN_-MqKNW9RnQuIqNP1tX8A/exec";
+
+  
+  console.log("add-record.js loaded");
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
+    console.log("Form submit clicked");
 
     const formData = new FormData(form);
     let data = {};
+
     formData.forEach((value, key) => {
-      if (key !== "medical_files") data[key] = value;
+      if (key !== "medical_files") data[key] = value; 
     });
 
     fetch(scriptURL, {
@@ -17,6 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
     })
     .then(response => response.json())
     .then(res => {
+      console.log("Response from Apps Script:", res);
       if (res.status === "success") {
         alert("Record submitted successfully!");
         form.reset();
@@ -25,15 +34,11 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     })
     .catch(err => {
-      console.error("Error:", err);
+      console.error("Fetch error:", err);
       alert("Failed to submit record. Check Apps Script deployment and permissions.");
     });
   });
 });
-
-
-
-
 
 
 
