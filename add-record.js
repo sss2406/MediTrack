@@ -1,70 +1,45 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-  const form = document.querySelector("#patientForm");
-  let editIndex = localStorage.getItem("editIndex");
-
-
-  if (editIndex !== null) {
-    const records = JSON.parse(localStorage.getItem("patientRecords")) || [];
-    const record = records[editIndex];
-
-    if (record) {
-      for (let key in record) {
-        const field = form.querySelector(`[name="${key}"]`);
-        if (!field) continue;
-
-        if (key === "medical_files") {
-          
-          continue;
-        } else {
-          field.value = record[key];
-        }
-      }
-    }
-  }
+  const form = document.getElementById("patientForm");
 
   
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
+  const scriptURL = "https://script.google.com/macros/s/AKfycbyJCWn1fvwuukE8Dg1ilQTs9hcFubwlpeEGEq4PYIS22elDsUKJdzjhJqnFccwXL2FpJQ/exec";
 
-    let newRecord = {};
-    const fields = [
-      "name","mobile","email","age","gender","height","weight",
-      "blood_pressure","heart_rate","temperature","follow_up",
-      "symptoms","diagnosis","medications","notes","doctor","medical_files"
-    ];
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
 
-    fields.forEach(fieldName => {
-      const field = form.querySelector(`[name="${fieldName}"]`);
-      if (!field) return;
+    const formData = new FormData(form);
+    let data = {};
 
-      if (fieldName === "medical_files") {
-        const files = field.files;
-        newRecord[fieldName] = [];
-        for (let i = 0; i < files.length; i++) {
-          newRecord[fieldName].push(files[i].name);
-        }
-      } else {
-        newRecord[fieldName] = field.value.trim();
-      }
+    formData.forEach((value, key) => {
+      if (key === "medical_files") return; 
+      data[key] = value;
     });
 
-    let records = JSON.parse(localStorage.getItem("patientRecords")) || [];
-
-    if (editIndex !== null) {
-      records[editIndex] = newRecord;
-      localStorage.removeItem("editIndex");
-      alert("Record Updated Successfully!");
-    } else {
-      records.push(newRecord);
-      alert("Record Added Successfully!");
-    }
-
-    localStorage.setItem("patientRecords", JSON.stringify(records));
-    form.reset();
+    fetch(scriptURL, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: { "Content-Type": "application/json" }
+    })
+    .then(res => res.json())
+    .then(response => {
+      if (response.status === "success") {
+        alert("Record saved to Google Sheets!");
+        form.reset();
+      } else {
+        alert("Error saving record.");
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Failed to connect to server.");
+    });
   });
 
 });
+
+});
+
 
 
 
