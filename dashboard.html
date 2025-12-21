@@ -27,16 +27,6 @@
       box-shadow: 0 10px 25px rgba(0,0,0,0.25);
     }
 
-    h1 {
-      margin-bottom: 20px;
-    }
-
-    p {
-      font-size: 16px;
-      line-height: 1.6;
-      margin: 10px 0;
-    }
-
     button {
       margin-top: 25px;
       padding: 14px 28px;
@@ -46,17 +36,10 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.3s;
     }
 
     button:hover {
       background-color: #45a049;
-    }
-
-    .error {
-      color: red;
-      margin-top: 15px;
-      font-size: 14px;
     }
   </style>
 </head>
@@ -64,16 +47,17 @@
 
   <div class="dashboard">
     <h1>MediTrack Dashboard</h1>
-    <p>Your patient records submitted through MediTrack are securely stored in Google Sheets.</p>
+    <p>Your patient records are securely stored in Google Sheets.</p>
 
     
-    <button id="openSheetBtn">Go to Google Sheets</button>
-    <p id="errorMsg" class="error"></p>
+    <a href="https://docs.google.com/spreadsheets/d/1gqB3-KYs2ca_1yqEoWaLsIZIDODC-1erskSdUJrPE1k/edit#gid=0" target="_blank">
+      <button>Go to Google Sheets</button>
+    </a>
   </div>
 
-  <script src="dashboard.js"></script>
 </body>
 </html>
+
 
 
 
