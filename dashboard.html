@@ -25,9 +25,7 @@
       --muted: #94a3b8;
       --border: #334155;
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
       background: var(--bg);
       background-image:
@@ -40,7 +38,6 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       color: var(--text);
     }
-
     .dashboard {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -50,12 +47,10 @@
       text-align: center;
       box-shadow: 0 20px 60px rgba(0,0,0,.5);
     }
-
     .dashboard-icon {
       font-size: 48px;
       margin-bottom: 16px;
     }
-
     .dashboard h1 {
       margin-bottom: 12px;
       font-size: 24px;
@@ -65,20 +60,17 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-
     .dashboard p {
       font-size: 15px;
       color: var(--muted);
       line-height: 1.7;
       margin-bottom: 8px;
     }
-
     .divider {
       height: 1px;
       background: var(--border);
       margin: 24px 0;
     }
-
     .sheet-btn {
       display: inline-block;
       padding: 13px 32px;
@@ -91,13 +83,12 @@
       cursor: pointer;
       text-decoration: none;
       transition: all 0.2s;
+      margin-top: 24px;
     }
-
     .sheet-btn:hover {
       filter: brightness(1.1);
       transform: translateY(-2px);
     }
-
     .back-btn {
       display: inline-block;
       margin-top: 14px;
@@ -106,7 +97,6 @@
       text-decoration: none;
       transition: color 0.2s;
     }
-
     .back-btn:hover { color: var(--accent); }
   </style>
 </head>
@@ -118,12 +108,12 @@
       Your patient records submitted through MediTrack are securely
       stored in Google Sheets.
     </p>
-
-      <button class="sheet-btn" onclick="window.open('https://docs.google.com/spreadsheets/d/1gqB3-KYs2ca_1yqEoWaLsIZIDODC-1erskSdUJrPE1k/edit#gid=0', '_blank')">📄 Open Google Sheets</button>
-    </a>
+    <div class="divider"></div>
+    <button class="sheet-btn" onclick="window.location.href='https://docs.google.com/spreadsheets/d/1gqB3-KYs2ca_1yqEoWaLsIZIDODC-1erskSdUJrPE1k/edit#gid=0'">
+      📄 Open Google Sheets
+    </button>
     <br>
     <a href="index.html" class="back-btn">← Back to Home</a>
   </div>
-  <script src="./meditrack-hub.js"></script>
 </body>
 </html>
