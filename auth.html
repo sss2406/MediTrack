@@ -41,8 +41,19 @@
   .features{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:24px;padding-top:20px;border-top:1px solid var(--border);}
   .feat{text-align:center;font-size:11px;color:var(--muted);}
   .feat span{font-size:20px;display:block;margin-bottom:4px;}
-  #login-form,#signup-form,#forgot-form{display:none;}
-  #login-form.active,#signup-form.active,#forgot-form.active{display:block;}
+.developer-footer{
+  margin-top:20px;
+  padding-top:15px;
+  border-top:1px solid var(--border);
+  text-align:center;
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.6;
+}
+
+.developer-footer strong{
+  color:var(--accent);
+}
 </style>
 </head>
 <body>
@@ -203,16 +214,18 @@
     setTimeout(() => window.location.href = './index.html', 800);
   }
 </script>
- <div style="
-text-align:center;
-margin-top:20px;
-font-size:13px;
-color:#94a3b8;
-">
-Designed and Developed by
-<strong>Sri Sudharshana S</strong>
-<br>
-MediTrack Project • December 2025
+<div class="features">
+  <div class="feat"><span>🤖</span>AI Assistant</div>
+  <div class="feat"><span>📊</span>Analytics</div>
+  <div class="feat"><span>🏆</span>Adherence</div>
+  <div class="feat"><span>📷</span>OCR Scan</div>
+  <div class="feat"><span>📄</span>PDF Reports</div>
+  <div class="feat"><span>🆘</span>SOS Alert</div>
+</div><div class="developer-footer">
+  Designed and Developed by
+  <strong>Sri Sudharshana S</strong>
+  <br>
+  MediTrack Project • December 2025
 </div>
 </body>
 </html>
