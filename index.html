@@ -3,10 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script>
+    const session = JSON.parse(localStorage.getItem('mt_session') || 'null');
+
+    if (!session || session.expires < Date.now()) {
+      localStorage.removeItem('mt_session');
+      localStorage.removeItem('mt_user');
+      window.location.href = 'auth.html';
+    }
+  </script>
+
   <title>MediTrack</title>
+
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="./manifest.json" />
   <meta name="theme-color" content="#06b6d4" />
+
   <style>
     body {
       background: url('health-bg.jpg') no-repeat center center fixed;
@@ -20,44 +33,89 @@
       align-items: center;
 
       font-family: Arial, sans-serif;
-      color:black;
+      color: black;
     }
+
+    .user-box{
+      position:absolute;
+      top:20px;
+      right:20px;
+      background:white;
+      padding:10px 15px;
+      border-radius:10px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.2);
+      font-size:14px;
+    }
+
+    .logout-btn{
+      margin-top:5px;
+      width:100%;
+      padding:5px;
+      border:none;
+      border-radius:5px;
+      background:#ef4444;
+      color:white;
+      cursor:pointer;
+    }
+
     a {
       text-decoration: none;
-      color:black;
+      color: black;
       margin: 10px;
       font-size: 20px;
     }
   </style>
 </head>
+
 <body>
+
+  <div class="user-box">
+    <div id="welcomeUser"></div>
+    <button class="logout-btn" onclick="logout()">
+      Logout
+    </button>
+  </div>
+
   <div class="one">
     <h1>MediTrack</h1>
     <p>A responsive web dashboard to manage health records and vitals</p>
+
     <a href="add-record.html">Add Record</a>
     <a href="dashboard.html">Dashboard</a>
-</div>
   </div>
+
   <footer style="
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
-    background-color: #2c3e50;
-    color: white;
-    text-align: center;
-    padding: 20px 0;
-    font-size: 22px;
-">
-    Designed and Developed by <strong>Sri Sudharshana S</strong> | Project completed in <strong>December 2025</strong>
-</footer>
-<script src="./meditrack-hub.js"></script>
+    width:100vw;
+    margin-left:calc(-50vw + 50%);
+    background-color:#2c3e50;
+    color:white;
+    text-align:center;
+    padding:20px 0;
+    font-size:22px;
+  ">
+    Designed and Developed by <strong>Sri Sudharshana S</strong> |
+    Project completed in <strong>December 2025</strong>
+  </footer>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem('mt_user'));
+
+    if(user){
+      document.getElementById('welcomeUser').innerHTML =
+      `<strong>${user.name}</strong><br>${user.role}`;
+    }
+
+    function logout(){
+      localStorage.removeItem('mt_session');
+      localStorage.removeItem('mt_user');
+
+      alert('Logged out successfully');
+
+      window.location.href='auth.html';
+    }
+  </script>
+
+  <script src="./meditrack-hub.js"></script>
+
 </body>
 </html>
-
-
-
-
-
-
-
-
-
