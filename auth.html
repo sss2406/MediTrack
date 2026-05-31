@@ -41,19 +41,10 @@
   .features{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:24px;padding-top:20px;border-top:1px solid var(--border);}
   .feat{text-align:center;font-size:11px;color:var(--muted);}
   .feat span{font-size:20px;display:block;margin-bottom:4px;}
-.developer-footer{
-  margin-top:20px;
-  padding-top:15px;
-  border-top:1px solid var(--border);
-  text-align:center;
-  font-size:12px;
-  color:var(--muted);
-  line-height:1.6;
-}
-
-.developer-footer strong{
-  color:var(--accent);
-}
+  .developer-footer{margin-top:20px;padding-top:15px;border-top:1px solid var(--border);text-align:center;font-size:12px;color:var(--muted);line-height:1.6;}
+  .developer-footer strong{color:var(--accent);}
+  [id$="-form"]{display:none;}
+  [id$="-form"].active{display:block;}
 </style>
 </head>
 <body>
@@ -130,10 +121,16 @@
     <div class="feat"><span>📄</span>PDF Reports</div>
     <div class="feat"><span>🆘</span>SOS Alert</div>
   </div>
+
+  <div class="developer-footer">
+    Designed and Developed by
+    <strong>Sri Sudharshana S</strong>
+    <br>
+    MediTrack Project • December 2025
+  </div>
 </div>
 
 <script>
-  // Simple role-based auth with localStorage (demo — swap with real backend)
   let selectedRole = 'patient';
 
   document.querySelectorAll('.tab').forEach(t => {
@@ -161,7 +158,6 @@
   }
   function clearAlert() { document.getElementById('alert-box').className = 'alert'; }
 
-  // Simulated password hash (use bcrypt on real backend)
   function simpleHash(str) { let h=5381; for(let i=0;i<str.length;i++)h=((h<<5)+h)+str.charCodeAt(i)|0; return Math.abs(h).toString(36); }
 
   function handleLogin() {
@@ -204,8 +200,19 @@
     console.log('[MediTrack] Password reset token for', email, ':', simpleHash(email + Date.now()));
   }
 
-  function showForgot() { document.querySelectorAll('[id$="-form"]').forEach(f=>f.classList.remove('active')); document.getElementById('forgot-form').classList.add('active'); document.getElementById('auth-tabs').style.display='none'; clearAlert(); }
-  function showLogin() { document.getElementById('auth-tabs').style.display='flex'; document.querySelectorAll('[id$="-form"]').forEach(f=>f.classList.remove('active')); document.getElementById('login-form').classList.add('active'); document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab==='login')); clearAlert(); }
+  function showForgot() {
+    document.querySelectorAll('[id$="-form"]').forEach(f => f.classList.remove('active'));
+    document.getElementById('forgot-form').classList.add('active');
+    document.getElementById('auth-tabs').style.display = 'none';
+    clearAlert();
+  }
+  function showLogin() {
+    document.getElementById('auth-tabs').style.display = 'flex';
+    document.querySelectorAll('[id$="-form"]').forEach(f => f.classList.remove('active'));
+    document.getElementById('login-form').classList.add('active');
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'login'));
+    clearAlert();
+  }
 
   // Auto-login if valid session exists
   const session = JSON.parse(localStorage.getItem('mt_session') || 'null');
@@ -214,18 +221,5 @@
     setTimeout(() => window.location.href = './index.html', 800);
   }
 </script>
-<div class="features">
-  <div class="feat"><span>🤖</span>AI Assistant</div>
-  <div class="feat"><span>📊</span>Analytics</div>
-  <div class="feat"><span>🏆</span>Adherence</div>
-  <div class="feat"><span>📷</span>OCR Scan</div>
-  <div class="feat"><span>📄</span>PDF Reports</div>
-  <div class="feat"><span>🆘</span>SOS Alert</div>
-</div><div class="developer-footer">
-  Designed and Developed by
-  <strong>Sri Sudharshana S</strong>
-  <br>
-  MediTrack Project • December 2025
-</div>
 </body>
 </html>
