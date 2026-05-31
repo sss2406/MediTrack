@@ -1,0 +1,46 @@
+{
+  "name": "MediTrack — Health Management Platform",
+  "short_name": "MediTrack",
+  "description": "AI-powered medicine tracking and health analytics platform",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#06b6d4",
+  "orientation": "portrait-primary",
+  "categories": ["health", "medical", "productivity"],
+  "lang": "en",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192x192/06b6d4/ffffff?text=MT",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512/06b6d4/ffffff?text=MT",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Add Record",
+      "url": "./add-record.html",
+      "description": "Add a new patient record"
+    },
+    {
+      "name": "AI Assistant",
+      "url": "./#ai",
+      "description": "Open AI Medicine Assistant"
+    },
+    {
+      "name": "Analytics",
+      "url": "./#analytics",
+      "description": "View health analytics"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
