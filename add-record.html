@@ -1,207 +1,315 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MediTrack — Login</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  const session = JSON.parse(localStorage.getItem('mt_session') || 'null');
+  if (!session || session.expires < Date.now()) {
+    localStorage.removeItem('mt_session');
+    localStorage.removeItem('mt_user');
+    window.location.href = 'auth.html';
+  }
+</script>
 <link rel="manifest" href="./manifest.json" />
+<meta name="theme-color" content="#06b6d4" />
+<title>Add Patient Record — MediTrack</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;}
-  :root{--bg:#0f172a;--surface:#1e293b;--card:#243447;--accent:#06b6d4;--accent2:#8b5cf6;--text:#f1f5f9;--muted:#94a3b8;--border:#334155;--danger:#ef4444;--success:#10b981;}
-  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background-image:radial-gradient(ellipse at 20% 50%,rgba(6,182,212,.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(139,92,246,.08) 0%,transparent 50%);}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
-  .logo{text-align:center;margin-bottom:28px;}
-  .logo .icon{font-size:48px;}
-  .logo h1{font-size:24px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-top:8px;}
-  .logo p{color:var(--muted);font-size:13px;margin-top:4px;}
-  .tabs{display:flex;background:var(--card);border-radius:10px;padding:4px;margin-bottom:24px;}
-  .tab{flex:1;padding:9px;text-align:center;border-radius:7px;cursor:pointer;font-size:14px;font-weight:600;color:var(--muted);border:none;background:none;transition:all .2s;}
-  .tab.active{background:var(--accent);color:#fff;}
-  .form-group{margin-bottom:16px;}
-  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:500;}
-  input,select{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none;transition:border-color .2s;}
-  input:focus,select:focus{border-color:var(--accent);}
-  .btn{width:100%;padding:12px;border-radius:10px;border:none;cursor:pointer;font-size:15px;font-weight:700;margin-top:8px;transition:all .2s;}
-  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
-  .btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px);}
-  .role-chips{display:flex;gap:8px;margin-bottom:16px;}
-  .role-chip{flex:1;padding:10px 6px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;text-align:center;font-size:12px;font-weight:600;transition:all .2s;}
-  .role-chip.selected{border-color:var(--accent);color:var(--accent);background:rgba(6,182,212,.1);}
-  .role-chip .rc-icon{font-size:20px;display:block;margin-bottom:4px;}
-  .divider{text-align:center;color:var(--muted);font-size:12px;margin:16px 0;position:relative;}
-  .divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border);}
-  .divider::before{left:0;} .divider::after{right:0;}
-  .alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;display:none;}
-  .alert.show{display:block;}
-  .alert-error{background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3);}
-  .alert-success{background:rgba(16,185,129,.15);color:var(--success);border:1px solid rgba(16,185,129,.3);}
-  .forgot-link{text-align:center;margin-top:12px;font-size:13px;color:var(--muted);}
-  .forgot-link a{color:var(--accent);text-decoration:none;}
-  .features{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:24px;padding-top:20px;border-top:1px solid var(--border);}
-  .feat{text-align:center;font-size:11px;color:var(--muted);}
-  .feat span{font-size:20px;display:block;margin-bottom:4px;}
-  #login-form,#signup-form,#forgot-form{display:none;}
-  #login-form.active,#signup-form.active,#forgot-form.active{display:block;}
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --card: #243447;
+    --accent: #06b6d4;
+    --accent2: #8b5cf6;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --border: #334155;
+    --danger: #ef4444;
+    --success: #10b981;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(6,182,212,.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(139,92,246,.08) 0%, transparent 50%);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 70px;
+    padding-bottom: 40px;
+  }
+
+  .app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    z-index: 1001;
+  }
+
+  .app-header span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .one {
+    width: 90%;
+    max-width: 900px;
+    max-height: calc(100vh - 100px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  h1 {
+    text-align: center;
+    margin: 0;
+    padding: 24px 30px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    font-size: 20px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-color: var(--surface);
+  }
+
+  .scroll-content {
+    padding: 24px 36px 36px;
+    overflow-y: auto;
+    flex-grow: 1;
+  }
+
+  .scroll-content::-webkit-scrollbar { width: 6px; }
+  .scroll-content::-webkit-scrollbar-track { background: var(--card); }
+  .scroll-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .scroll-content::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  label {
+    display: block;
+    margin-top: 18px;
+    margin-bottom: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: #4b5e7a;
+  }
+
+  select option { background: var(--card); }
+
+  textarea { resize: vertical; }
+
+  .form-row { display: flex; gap: 20px; }
+  .form-group { flex: 1; }
+
+  small {
+    font-size: 12px;
+    color: var(--muted);
+    display: block;
+    margin-top: 4px;
+  }
+
+  button {
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    width: 100%;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.2s;
+    font-family: inherit;
+    margin-top: 10px;
+  }
+
+  .save-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+  }
+
+  .save-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+
+  .dashboard-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .dashboard-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .home-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .home-btn:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+
+  @media (max-width: 600px) {
+    .form-row { flex-direction: column; gap: 0; }
+    .one { width: 95%; }
+    .scroll-content { padding: 16px 20px 24px; }
+  }
 </style>
 </head>
 <body>
-<div class="card">
-  <div class="logo">
-    <div class="icon">⚕️</div>
-    <h1>MediTrack</h1>
-    <p>Health Management Platform v2.0</p>
+  <header class="app-header">
+    <span>MediTrack</span>&nbsp;— Add Patient Record
+  </header>
+
+  <div class="one">
+    <h1>Add Patient Record</h1>
+
+    <div class="scroll-content">
+      <form id="patientForm">
+
+        <label>Patient Name</label>
+        <input type="text" name="name" placeholder="Enter full name" required>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Mobile Number</label>
+            <input type="tel" name="mobile" placeholder="Enter mobile number" pattern="[0-9]{10}" required>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="Enter email address" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Age</label>
+            <input type="number" name="age" placeholder="Enter age" required>
+          </div>
+          <div class="form-group">
+            <label>Gender</label>
+            <select name="gender" required>
+              <option value="">SELECT</option>
+              <option>Male</option>
+              <option>Female</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Height (cm)</label>
+            <input type="number" name="height" placeholder="Enter height in cm" required>
+          </div>
+          <div class="form-group">
+            <label>Weight (kg)</label>
+            <input type="number" name="weight" placeholder="Enter weight in kg" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Blood Pressure</label>
+            <input type="text" name="blood_pressure" placeholder="120/80" required>
+          </div>
+          <div class="form-group">
+            <label>Heart Rate (bpm)</label>
+            <input type="number" name="heart_rate" placeholder="Enter heart rate" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Body Temperature (°C)</label>
+            <input type="number" step="0.1" name="temperature" placeholder="Enter temperature" required>
+          </div>
+          <div class="form-group">
+            <label>Follow-up Date</label>
+            <input type="date" name="follow_up" required>
+          </div>
+        </div>
+
+        <label>Symptoms</label>
+        <textarea name="symptoms" rows="3" placeholder="Describe symptoms" required></textarea>
+
+        <label>Diagnosis</label>
+        <textarea name="diagnosis" rows="3" placeholder="Enter diagnosis" required></textarea>
+
+        <label>Medications</label>
+        <textarea name="medications" rows="3" placeholder="List medications" required></textarea>
+
+        <label>Additional Notes</label>
+        <textarea name="notes" rows="3" placeholder="Any additional notes"></textarea>
+
+        <label>Attending Doctor</label>
+        <input type="text" name="doctor" placeholder="Doctor name" required>
+
+        <label>Upload Medical Files</label>
+        <input type="file" name="medical_files" multiple accept=".pdf,.jpg,.jpeg,.png">
+        <small>Files are optional</small>
+
+        <button type="submit" class="save-btn">💾 Save Record</button>
+        <button type="button" class="dashboard-btn" onclick="window.location.href='dashboard.html'">📊 Go to Dashboard</button>
+        <button type="button" class="home-btn" onclick="window.location.href='index.html'">🏠 Back to Home</button>
+
+      </form>
+    </div>
   </div>
 
-  <div id="alert-box" class="alert"></div>
-
-  <div class="tabs" id="auth-tabs">
-    <button class="tab active" data-tab="login">Login</button>
-    <button class="tab" data-tab="signup">Sign Up</button>
-  </div>
-
-  <!-- Login Form -->
-  <div id="login-form" class="active">
-    <div class="form-group">
-      <label>Email Address</label>
-      <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email" />
-    </div>
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="login-pwd" placeholder="Enter password" autocomplete="current-password" />
-    </div>
-    <button class="btn btn-primary" onclick="handleLogin()">🔐 Login to MediTrack</button>
-    <p class="forgot-link"><a href="#" onclick="showForgot()">Forgot password?</a> &nbsp;|&nbsp; <a href="./index.html">Back to Home</a></p>
-  </div>
-
-  <!-- Signup Form -->
-  <div id="signup-form">
-    <div class="form-group">
-      <label>Full Name</label>
-      <input type="text" id="sig-name" placeholder="Sri Sudharshana" autocomplete="name" />
-    </div>
-    <div class="form-group">
-      <label>Email Address</label>
-      <input type="email" id="sig-email" placeholder="you@example.com" autocomplete="email" />
-    </div>
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="sig-pwd" placeholder="Min. 8 characters" autocomplete="new-password" />
-    </div>
-    <div class="form-group">
-      <label>Role</label>
-      <div class="role-chips">
-        <div class="role-chip selected" data-role="patient"><span class="rc-icon">🤒</span>Patient</div>
-        <div class="role-chip" data-role="doctor"><span class="rc-icon">👨‍⚕️</span>Doctor</div>
-        <div class="role-chip" data-role="admin"><span class="rc-icon">⚙️</span>Admin</div>
-      </div>
-    </div>
-    <button class="btn btn-primary" onclick="handleSignup()">🚀 Create Account</button>
-    <p class="forgot-link"><a href="./index.html">Back to Home</a></p>
-  </div>
-
-  <!-- Forgot Password Form -->
-  <div id="forgot-form">
-    <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Enter your email and we'll send reset instructions.</p>
-    <div class="form-group">
-      <label>Email Address</label>
-      <input type="email" id="forgot-email" placeholder="you@example.com" />
-    </div>
-    <button class="btn btn-primary" onclick="handleForgot()">📧 Send Reset Link</button>
-    <p class="forgot-link"><a href="#" onclick="showLogin()">← Back to Login</a></p>
-  </div>
-
-  <div class="features">
-    <div class="feat"><span>🤖</span>AI Assistant</div>
-    <div class="feat"><span>📊</span>Analytics</div>
-    <div class="feat"><span>🏆</span>Adherence</div>
-    <div class="feat"><span>📷</span>OCR Scan</div>
-    <div class="feat"><span>📄</span>PDF Reports</div>
-    <div class="feat"><span>🆘</span>SOS Alert</div>
-  </div>
-</div>
-
-<script>
-  // Simple role-based auth with localStorage (demo — swap with real backend)
-  let selectedRole = 'patient';
-
-  document.querySelectorAll('.tab').forEach(t => {
-    t.addEventListener('click', () => {
-      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-      t.classList.add('active');
-      document.querySelectorAll('[id$="-form"]').forEach(f => f.classList.remove('active'));
-      document.getElementById(t.dataset.tab + '-form').classList.add('active');
-      clearAlert();
-    });
-  });
-
-  document.querySelectorAll('.role-chip').forEach(c => {
-    c.addEventListener('click', () => {
-      document.querySelectorAll('.role-chip').forEach(x => x.classList.remove('selected'));
-      c.classList.add('selected');
-      selectedRole = c.dataset.role;
-    });
-  });
-
-  function showAlert(msg, type='error') {
-    const el = document.getElementById('alert-box');
-    el.textContent = msg;
-    el.className = `alert show alert-${type}`;
-  }
-  function clearAlert() { document.getElementById('alert-box').className = 'alert'; }
-
-  // Simulated password hash (use bcrypt on real backend)
-  function simpleHash(str) { let h=5381; for(let i=0;i<str.length;i++)h=((h<<5)+h)+str.charCodeAt(i)|0; return Math.abs(h).toString(36); }
-
-  function handleLogin() {
-    const email = document.getElementById('login-email').value.trim();
-    const pwd = document.getElementById('login-pwd').value;
-    if (!email || !pwd) { showAlert('⚠️ Please fill all fields.'); return; }
-    const users = JSON.parse(localStorage.getItem('mt_users') || '[]');
-    const user = users.find(u => u.email === email && u.pwdHash === simpleHash(pwd));
-    if (!user) { showAlert('❌ Invalid email or password.'); return; }
-    const session = { ...user, loginTime: Date.now(), expires: Date.now() + 7*24*60*60*1000 };
-    delete session.pwdHash;
-    localStorage.setItem('mt_session', JSON.stringify(session));
-    localStorage.setItem('mt_user', JSON.stringify(session));
-    showAlert('✅ Login successful! Redirecting…', 'success');
-    setTimeout(() => window.location.href = './index.html', 1000);
-  }
-
-  function handleSignup() {
-    const name = document.getElementById('sig-name').value.trim();
-    const email = document.getElementById('sig-email').value.trim();
-    const pwd = document.getElementById('sig-pwd').value;
-    if (!name || !email || !pwd) { showAlert('⚠️ Please fill all fields.'); return; }
-    if (pwd.length < 8) { showAlert('⚠️ Password must be at least 8 characters.'); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showAlert('⚠️ Please enter a valid email.'); return; }
-    const users = JSON.parse(localStorage.getItem('mt_users') || '[]');
-    if (users.find(u => u.email === email)) { showAlert('❌ An account with this email already exists.'); return; }
-    const user = { id: 'usr_' + Date.now(), name, email, role: selectedRole, pwdHash: simpleHash(pwd), createdAt: new Date().toISOString() };
-    users.push(user);
-    localStorage.setItem('mt_users', JSON.stringify(users));
-    showAlert('✅ Account created! Logging you in…', 'success');
-    setTimeout(() => { document.getElementById('login-email').value = email; document.getElementById('login-pwd').value = pwd; handleLogin(); }, 1200);
-  }
-
-  function handleForgot() {
-    const email = document.getElementById('forgot-email').value.trim();
-    if (!email) { showAlert('⚠️ Please enter your email.'); return; }
-    const users = JSON.parse(localStorage.getItem('mt_users') || '[]');
-    if (!users.find(u => u.email === email)) { showAlert('❌ No account found with that email.'); return; }
-    showAlert(`✅ Reset instructions sent to ${email}. (Demo: check console for token)`, 'success');
-    console.log('[MediTrack] Password reset token for', email, ':', simpleHash(email + Date.now()));
-  }
-
-  function showForgot() { document.querySelectorAll('[id$="-form"]').forEach(f=>f.classList.remove('active')); document.getElementById('forgot-form').classList.add('active'); document.getElementById('auth-tabs').style.display='none'; clearAlert(); }
-  function showLogin() { document.getElementById('auth-tabs').style.display='flex'; document.querySelectorAll('[id$="-form"]').forEach(f=>f.classList.remove('active')); document.getElementById('login-form').classList.add('active'); document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab==='login')); clearAlert(); }
-
-  // Auto-login if valid session exists
-  const session = JSON.parse(localStorage.getItem('mt_session') || 'null');
-  if (session && session.expires > Date.now()) {
-    showAlert(`✅ Welcome back, ${session.name}! Redirecting…`, 'success');
-    setTimeout(() => window.location.href = './index.html', 800);
-  }
-</script>
+  <script src="add-record.js"></script>
+  <script src="./meditrack-hub.js"></script>
 </body>
 </html>
