@@ -5,7 +5,22 @@
 (function () {
   'use strict';
 
-  // ── State ──────────────────────────────────────────────────────────
+  // Authentication Check
+  const session = JSON.parse(
+    localStorage.getItem('mt_session') || 'null'
+  );
+
+  if (!session || session.expires < Date.now()) {
+
+    localStorage.removeItem('mt_session');
+    localStorage.removeItem('mt_user');
+
+    if (!window.location.pathname.includes('auth.html')) {
+      window.location.href = './auth.html';
+    }
+
+    return;
+  }
   const MT = {
     version: '2.0.0',
     user: JSON.parse(localStorage.getItem('mt_user') || 'null'),
