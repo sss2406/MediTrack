@@ -1,4 +1,4 @@
-// dashboard.js — MediTrack Dashboard (direct, no proxy)
+// dashboard.js v3 — MediTrack Dashboard (direct, no proxy)
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2jT6n1A7vnyOHCoERZaWd-hjMjYxgS0Hr0dggK1VAoeRHX03Ks4a3cCO74PJC3Ioi/exec";
 
 async function fetchSheetData() {
