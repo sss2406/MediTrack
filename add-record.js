@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("patientForm");
 
 const scriptURL =
-"https://script.google.com/macros/s/AKfycbzRLiGmS1YqnhnywMFBYhPbx4IWBcs-W2W-nj8NLV6BIEJp1n1NnF3GzNPGnx3pfmQG/exec";
+"https://script.google.com/macros/s/AKfycbwxqK1HwNDrIUVOhdorQMvbTjOmLIFwri2DQP3TnPjQaq45nYwF3LReYZXWXbdRf9Rl/exec";
 
   form.addEventListener("submit", async (e) => {
 
