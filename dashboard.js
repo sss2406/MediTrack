@@ -1,15 +1,14 @@
-// dashboard.js — MediTrack Dashboard (CORS-fixed version)
+// dashboard.js — MediTrack Dashboard (direct, no proxy)
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2jT6n1A7vnyOHCoERZaWd-hjMjYxgS0Hr0dggK1VAoeRHX03Ks4a3cCO74PJC3Ioi/exec";
 
 async function fetchSheetData() {
-  const proxyURL = "https://corsproxy.io/?" + encodeURIComponent(SCRIPT_URL);
-  const res = await fetch(proxyURL);
-  if (!res.ok) throw new Error("Proxy request failed with status: " + res.status);
+  const res = await fetch(SCRIPT_URL, { redirect: "follow" });
+  if (!res.ok) throw new Error("Request failed: " + res.status);
   const text = await res.text();
   try {
     return JSON.parse(text);
   } catch (e) {
-    throw new Error("Server returned invalid JSON: " + text.slice(0, 100));
+    throw new Error("Bad JSON received: " + text.slice(0, 100));
   }
 }
 
@@ -63,7 +62,4 @@ async function loadDashboard() {
     document.getElementById("loading").innerText = "✅ Dashboard updated";
   } catch (error) {
     console.error("Dashboard error:", error);
-    document.getElementById("loading").innerText = "❌ Failed to load — " + error.message;
-  }
-}
-loadDashboard();
+    document.getElementById("loading").innerText = "❌ Failed to load — " +
