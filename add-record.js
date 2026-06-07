@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("patientForm");
 
   const scriptURL =
-  "YOUR_APPS_SCRIPT_URL";
+"https://script.google.com/macros/s/AKfycbwxrJGBx1_FEX-7Wa1andtXPe74OvlAFKlkI2lp_c1nGstidPx9Yj7-mQkq4s82pG0q/exec";
 
   form.addEventListener("submit", async (e) => {
 
