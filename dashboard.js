@@ -4,7 +4,7 @@
 // Script actually returns. Also unified to use the same endpoint as meditrack-hub.js.
 
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbz4MGPFA_qdPuFMyn04_524T_rXId6KebEKIvfWFUXc-wyU-r4jObBQS960T7HcrxY9/exec";
+"https://script.google.com/macros/s/AKfycbzRLiGmS1YqnhnywMFBYhPbx4IWBcs-W2W-nj8NLV6BIEJp1n1NnF3GzNPGnx3pfmQG/exec":
 
 async function loadDashboard() {
   try {
