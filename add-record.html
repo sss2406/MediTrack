@@ -282,20 +282,60 @@
           </div>
         </div>
 
-        <label>Symptoms</label>
-        <textarea name="symptoms" rows="3" placeholder="Describe symptoms" required></textarea>
+<h3 style="margin-top:25px;color:#06b6d4">
+Medication Information
+</h3>
 
-        <label>Diagnosis</label>
-        <textarea name="diagnosis" rows="3" placeholder="Enter diagnosis" required></textarea>
+<label>Medicine Name</label>
+<input type="text" name="medicine_name" required>
 
-        <label>Medications</label>
-        <textarea name="medications" rows="3" placeholder="List medications" required></textarea>
+<label>Dosage</label>
+<input type="text" name="dosage" placeholder="500mg">
 
-        <label>Additional Notes</label>
-        <textarea name="notes" rows="3" placeholder="Any additional notes"></textarea>
+<label>Frequency</label>
+<select name="frequency" required>
+  <option value="">Select</option>
+  <option>Once Daily</option>
+  <option>Twice Daily</option>
+  <option>Three Times Daily</option>
+</select>
 
-        <label>Attending Doctor</label>
-        <input type="text" name="doctor" placeholder="Doctor name" required>
+<label>Reminder Time</label>
+<input type="time" name="reminder_time" required>
+
+<label>Current Stock Quantity</label>
+<input type="number" name="stock" min="0" required>
+
+<label>Daily Consumption</label>
+<input type="number" name="daily_consumption" min="1" required>
+
+<label>Start Date</label>
+<input type="date" name="start_date" required>
+
+<label>End Date</label>
+<input type="date" name="end_date" required>
+
+<h3 style="margin-top:25px;color:#06b6d4">
+Health Parameters
+</h3>
+
+<label>Blood Pressure</label>
+<input type="text" name="blood_pressure">
+
+<label>Heart Rate</label>
+<input type="number" name="heart_rate">
+
+<label>Blood Sugar</label>
+<input type="number" name="blood_sugar">
+
+<label>Weight (kg)</label>
+<input type="number" name="weight">
+
+<label>SpO2 (%)</label>
+<input type="number" name="spo2">
+
+<label>Temperature (°C)</label>
+<input type="number" step="0.1" name="temperature">
 
         <label>Upload Medical Files</label>
         <input type="file" name="medical_files" multiple accept=".pdf,.jpg,.jpeg,.png">
