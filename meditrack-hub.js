@@ -535,26 +535,34 @@ function openFeature(name) {
 <p style="font-size:13px;font-weight:700;color:var(--mt-text);margin-bottom:8px;">
   Available Commands
 </p>
-<script>
-  const commands = [
-    ['open ai assistant','Opens AI chat'],
-    ['show analytics','Opens health analytics'],
-    ['check interactions','Drug interaction checker'],
-    ['emergency sos','Activates SOS'],
-    ['toggle theme','Switch dark/light mode']
-  ];
+      <p style="font-size:13px;font-weight:700;color:var(--mt-text);margin-bottom:8px;">
+        💬 Available Commands
+      </p>
 
-document.write(
-  commands.map(([cmd, desc]) => `
-    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--mt-border);font-size:13px;">
-      <span style="color:var(--mt-accent);font-family:monospace;">${cmd}</span>
-      <span style="color:var(--mt-muted);">${desc}</span>
-    </div>
-  `).join('')
-);   
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--mt-border);font-size:13px;">
+        <span style="color:var(--mt-accent);font-family:monospace;">"open ai assistant"</span>
+        <span style="color:var(--mt-muted);">Opens AI chat</span>
+      </div>
 
-</script>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--mt-border);font-size:13px;">
+        <span style="color:var(--mt-accent);font-family:monospace;">"show analytics"</span>
+        <span style="color:var(--mt-muted);">Opens health analytics</span>
+      </div>
 
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--mt-border);font-size:13px;">
+        <span style="color:var(--mt-accent);font-family:monospace;">"check interactions"</span>
+        <span style="color:var(--mt-muted);">Drug interaction checker</span>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--mt-border);font-size:13px;">
+        <span style="color:var(--mt-accent);font-family:monospace;">"emergency sos"</span>
+        <span style="color:var(--mt-muted);">Activates SOS</span>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--mt-border);font-size:13px;">
+        <span style="color:var(--mt-accent);font-family:monospace;">"toggle theme"</span>
+        <span style="color:var(--mt-muted);">Switch dark/light mode</span>
+      </div>
     const btn = document.getElementById('mt-voice-btn');
     const statusEl = document.getElementById('mt-voice-status');
     const textEl = document.getElementById('mt-voice-text');
@@ -579,15 +587,16 @@ const cmds = {
   'emergency sos': () => { closeModal(); sos(); },
   'toggle theme': toggleTheme
 };
-        if (match) { cmds[match](); statusEl.textContent = `Command recognized: "${match}"`; }
-        else { statusEl.textContent = 'Command not recognized. Try again.'; }
-        listening = false; btn.textContent = '🎙️';
-      }
-    };
-    recog.onerror = () => { statusEl.textContent = ' Error. Tap to try again.'; listening = false; btn.textContent = '🎙️'; };
-    recog.onend = () => { listening = false; btn.textContent = '🎙️'; };
-  }
 
+const match = Object.keys(cmds).find(k => transcript.includes(k));
+
+if (match) {
+  cmds[match]();
+  statusEl.textContent = `Command recognized: "${match}"`;
+}
+else {
+  statusEl.textContent = 'Command not recognized. Try again.';
+}
  
   // 11. Settings ────────────────────────────────────────────────────
   function settings() {
