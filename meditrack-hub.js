@@ -544,14 +544,15 @@ function openFeature(name) {
     ['toggle theme','Switch dark/light mode']
   ];
 
-  document.write(
-    commands.map(([cmd, desc]) => `
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--mt-border);font-size:13px;">
-        <span style="color:var(--mt-accent);font-family:monospace;">"${cmd}"</span>
-        <span style="color:var(--mt-muted);">${desc}</span>
-      </div>
-    `).join('')
-  );
+document.write(
+  commands.map(([cmd, desc]) => `
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--mt-border);font-size:13px;">
+      <span style="color:var(--mt-accent);font-family:monospace;">${cmd}</span>
+      <span style="color:var(--mt-muted);">${desc}</span>
+    </div>
+  `).join('')
+);   
+
 </script>
 
     const btn = document.getElementById('mt-voice-btn');
