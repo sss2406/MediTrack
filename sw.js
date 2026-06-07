@@ -55,8 +55,8 @@ self.addEventListener('push', e => {
       tag: 'meditrack-reminder',
       vibrate: [200, 100, 200],
       actions: [
-        { action: 'taken', title: '✅ Mark Taken' },
-        { action: 'snooze', title: '⏰ Snooze 30min' }
+        { action: 'taken', title: ' Mark Taken' },
+        { action: 'snooze', title: 'Snooze 30min' }
       ]
     })
   );
