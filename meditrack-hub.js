@@ -155,16 +155,6 @@
           <div class="mt-label">Stock</div>
           <div class="mt-desc">Refill predictor</div>
         </div>
-        <div class="mt-tile" data-feature="appointment">
-          <div class="mt-icon">🗓️</div>
-          <div class="mt-label">Appointment</div>
-          <div class="mt-desc">Book a doctor</div>
-        </div>
-        <div class="mt-tile" data-feature="report">
-          <div class="mt-icon">📄</div>
-          <div class="mt-label">PDF Report</div>
-          <div class="mt-desc">Download records</div>
-        </div>
         <div class="mt-tile" data-feature="voice">
           <div class="mt-icon">🎙️</div>
           <div class="mt-label">${MT.t('voice')}</div>
@@ -223,7 +213,7 @@
 
   // ── FEATURES ───────────────────────────────────────────────────────
   function openFeature(name) {
-    const features = { ai, ocr, analytics, interactions, adherence, stock, appointment, report, voice, backup, settings, sos };
+    const features = { ai, ocr, analytics, interactions, adherence, stock, voice, backup, settings, sos };
     if (features[name]) features[name]();
   }
 
@@ -468,117 +458,8 @@
     });
   }
 
-  // 7. Appointment Booking ──────────────────────────────────────────
-  function appointment() {
-    const appointments = JSON.parse(localStorage.getItem('mt_appointments') || '[]');
-    const doctors = ['Dr. Priya Sharma (Cardiologist)', 'Dr. Arun Kumar (Diabetologist)', 'Dr. Meena Raj (General Physician)', 'Dr. Karthik S (Neurologist)'];
-    openModal('🗓️ Doctor Appointment', `
-      <div style="background:var(--mt-surface);border-radius:12px;border:1px solid var(--mt-border);padding:16px;margin-bottom:16px;">
-        <p style="font-size:14px;font-weight:700;color:var(--mt-text);margin:0 0 12px;">Book New Appointment</p>
-        <label class="mt-label-text" style="margin-top:0;">Doctor</label>
-        <select id="mt-appt-doc" class="mt-input"><option value="">Select doctor…</option>${doctors.map(d=>`<option>${d}</option>`).join('')}</select>
-        <label class="mt-label-text">Date</label>
-        <input id="mt-appt-date" class="mt-input" type="date" min="${new Date().toISOString().split('T')[0]}" />
-        <label class="mt-label-text">Time</label>
-        <select id="mt-appt-time" class="mt-input"><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>2:00 PM</option><option>3:00 PM</option><option>4:00 PM</option></select>
-        <label class="mt-label-text">Reason</label>
-        <input id="mt-appt-reason" class="mt-input" placeholder="Reason for visit…" />
-        <button class="mt-btn mt-btn-primary" style="margin-top:14px;width:100%;" id="mt-appt-book">📅 Book Appointment</button>
-      </div>
-      <p style="font-size:14px;font-weight:700;color:var(--mt-text);margin-bottom:10px;">Your Appointments</p>
-      <div id="mt-appt-list">
-        ${appointments.length ? appointments.map((a,i) => `<div style="background:var(--mt-surface);border-radius:10px;border:1px solid var(--mt-border);padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:13px;font-weight:600;color:var(--mt-text);">${a.doc}</div><div style="font-size:12px;color:var(--mt-muted);">${a.date} at ${a.time} — ${a.reason}</div></div><button onclick="cancelAppt(${i})" style="background:none;border:none;color:var(--mt-danger);cursor:pointer;font-size:18px;">🗑</button></div>`).join('') : '<p style="color:var(--mt-muted);font-size:13px;">No appointments booked yet.</p>'}
-      </div>
-    `);
-    window.cancelAppt = (i) => { appointments.splice(i, 1); localStorage.setItem('mt_appointments', JSON.stringify(appointments)); appointment(); };
-    document.getElementById('mt-appt-book').addEventListener('click', () => {
-      const a = { doc: document.getElementById('mt-appt-doc').value, date: document.getElementById('mt-appt-date').value, time: document.getElementById('mt-appt-time').value, reason: document.getElementById('mt-appt-reason').value };
-      if (!a.doc || !a.date) { alert('Please select a doctor and date.'); return; }
-      appointments.push(a);
-      localStorage.setItem('mt_appointments', JSON.stringify(appointments));
-      alert('Appointment booked!');
-      appointment();
-    });
-  }
-
-  // 8. PDF Report Generator ─────────────────────────────────────────
-  function report() {
-    openModal('📄 PDF Medical Report', `
-      <p style="color:var(--mt-muted);font-size:13px;">Generate a professional PDF of your health records and medication history.</p>
-      <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><input type="checkbox" id="mt-rpt-meds" checked/><span style="font-size:14px;color:var(--mt-text);">💊 Medication List</span></label>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><input type="checkbox" id="mt-rpt-vitals" checked/><span style="font-size:14px;color:var(--mt-text);">📊 Vital Signs</span></label>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><input type="checkbox" id="mt-rpt-appt" checked/><span style="font-size:14px;color:var(--mt-text);">🗓️ Appointment History</span></label>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><input type="checkbox" id="mt-rpt-adherence" checked/><span style="font-size:14px;color:var(--mt-text);">🏆 Adherence Score</span></label>
-      </div>
-      <button class="mt-btn mt-btn-primary" style="margin-top:20px;width:100%;" id="mt-gen-pdf">📥 Generate & Download PDF</button>
-      <div id="mt-pdf-status" style="margin-top:12px;"></div>
-    `);
-    document.getElementById('mt-gen-pdf').addEventListener('click', generatePDF);
-
-    async function generatePDF() {
-      const status = document.getElementById('mt-pdf-status');
-      status.innerHTML = '<p style="color:var(--mt-muted);">⏳ Loading PDF engine…</p>';
-      if (!window.jspdf) {
-        const s = document.createElement('script');
-        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-        document.head.appendChild(s);
-        await new Promise(r => s.onload = r);
-      }
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      const metrics = JSON.parse(localStorage.getItem('mt_metrics') || '{}');
-      const adherenceData = JSON.parse(localStorage.getItem('mt_adherence') || '{"streak":0,"daily":0,"weekly":0}');
-      const medicines = JSON.parse(localStorage.getItem('mt_stock') || '[]');
-      const appointments = JSON.parse(localStorage.getItem('mt_appointments') || '[]');
-      let y = 20;
-      // Header
-      doc.setFillColor(6, 182, 212);
-      doc.rect(0, 0, 210, 28, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(20); doc.setFont('helvetica', 'bold');
-      doc.text('MediTrack Health Report', 14, 18);
-      doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-      doc.text(new Date().toLocaleDateString('en-IN', { dateStyle: 'full' }), 140, 18);
-      y = 40;
-      doc.setTextColor(30, 30, 30);
-      if (document.getElementById('mt-rpt-vitals').checked && Object.keys(metrics).length) {
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(14);
-        doc.text('Vital Signs', 14, y); y += 8;
-        doc.setFont('helvetica', 'normal'); doc.setFontSize(11);
-        if (metrics.bp) { doc.text(`Blood Pressure: ${metrics.bp}`, 14, y); y += 7; }
-        if (metrics.hr) { doc.text(`Heart Rate: ${metrics.hr} bpm`, 14, y); y += 7; }
-        if (metrics.sugar) { doc.text(`Blood Sugar: ${metrics.sugar} mg/dL`, 14, y); y += 7; }
-        if (metrics.spo2) { doc.text(`SpO2: ${metrics.spo2}%`, 14, y); y += 7; }
-        y += 5;
-      }
-      if (document.getElementById('mt-rpt-meds').checked && medicines.length) {
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(14);
-        doc.text('Medication List', 14, y); y += 8;
-        doc.setFont('helvetica', 'normal'); doc.setFontSize(11);
-        medicines.forEach(m => { const rem = m.total - m.taken; doc.text(`• ${m.name}: ${rem} pills remaining, ${Math.floor(rem/m.freq)} days supply`, 14, y); y += 7; });
-        y += 5;
-      }
-      if (document.getElementById('mt-rpt-adherence').checked) {
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(14);
-        doc.text('Adherence Summary', 14, y); y += 8;
-        doc.setFont('helvetica', 'normal'); doc.setFontSize(11);
-        doc.text(`Current Streak: ${adherenceData.streak} days`, 14, y); y += 7;
-        doc.text(`Weekly Adherence: ${adherenceData.weekly}%`, 14, y); y += 7;
-        y += 5;
-      }
-      if (document.getElementById('mt-rpt-appt').checked && appointments.length) {
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(14);
-        doc.text('Appointments', 14, y); y += 8;
-        doc.setFont('helvetica', 'normal'); doc.setFontSize(11);
-        appointments.forEach(a => { doc.text(`• ${a.doc} — ${a.date} at ${a.time}`, 14, y); y += 7; });
-      }
-      doc.setFontSize(9); doc.setTextColor(150, 150, 150);
-      doc.text('Generated by MediTrack v2.0 | For medical reference only — consult your doctor.', 14, 285);
-      doc.save('MediTrack-Report.pdf');
-      status.innerHTML = '<p style="color:var(--mt-success);">PDF downloaded successfully!</p>';
-    }
-  }
+ 
+     
 
   // 9. Voice Assistant ──────────────────────────────────────────────
   function voice() {
