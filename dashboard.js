@@ -1,5 +1,5 @@
 // dashboard.js — MediTrack Dashboard (CORS-fixed version)
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpViJ1ngnoGath8ZqeRaZOpAck71JItjPnqbWKLou1M9qm5L-1tZeyKkDPL2ndzGWO/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2jT6n1A7vnyOHCoERZaWd-hjMjYxgS0Hr0dggK1VAoeRHX03Ks4a3cCO74PJC3Ioi/exec";
 
 async function fetchSheetData() {
   const proxyURL = "https://corsproxy.io/?" + encodeURIComponent(SCRIPT_URL);
