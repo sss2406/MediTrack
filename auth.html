@@ -72,7 +72,7 @@
       <label>Password</label>
       <input type="password" id="login-pwd" placeholder="Enter password" autocomplete="current-password" />
     </div>
-    <button class="btn btn-primary" onclick="handleLogin()">🔐 Login to MediTrack</button>
+    <button class="btn btn-primary" onclick="handleLogin()">Login to MediTrack</button>
     <p class="forgot-link"><a href="#" onclick="showForgot()">Forgot password?</a> &nbsp;|&nbsp; <a href="./index.html">Back to Home</a></p>
   </div>
 
@@ -93,12 +93,12 @@
     <div class="form-group">
       <label>Role</label>
       <div class="role-chips">
-        <div class="role-chip selected" data-role="patient"><span class="rc-icon">🤒</span>Patient</div>
-        <div class="role-chip" data-role="doctor"><span class="rc-icon">👨‍⚕️</span>Doctor</div>
-        <div class="role-chip" data-role="admin"><span class="rc-icon">⚙️</span>Admin</div>
+        <div class="role-chip selected" data-role="patient">Patient</div>
+        <div class="role-chip" data-role="doctor">Doctor</div>
+        <div class="role-chip" data-role="admin">Admin</div>
       </div>
     </div>
-    <button class="btn btn-primary" onclick="handleSignup()">🚀 Create Account</button>
+    <button class="btn btn-primary" onclick="handleSignup()">Create Account</button>
     <p class="forgot-link"><a href="./index.html">Back to Home</a></p>
   </div>
 
@@ -109,7 +109,7 @@
       <label>Email Address</label>
       <input type="email" id="forgot-email" placeholder="you@example.com" />
     </div>
-    <button class="btn btn-primary" onclick="handleForgot()">📧 Send Reset Link</button>
+    <button class="btn btn-primary" onclick="handleForgot()">Send Reset Link</button>
     <p class="forgot-link"><a href="#" onclick="showLogin()">← Back to Login</a></p>
   </div>
 
@@ -166,12 +166,12 @@
     if (!email || !pwd) { showAlert('⚠️ Please fill all fields.'); return; }
     const users = JSON.parse(localStorage.getItem('mt_users') || '[]');
     const user = users.find(u => u.email === email && u.pwdHash === simpleHash(pwd));
-    if (!user) { showAlert('❌ Invalid email or password.'); return; }
+    if (!user) { showAlert('Invalid email or password.'); return; }
     const session = { ...user, loginTime: Date.now(), expires: Date.now() + 7*24*60*60*1000 };
     delete session.pwdHash;
     localStorage.setItem('mt_session', JSON.stringify(session));
     localStorage.setItem('mt_user', JSON.stringify(session));
-    showAlert('✅ Login successful! Redirecting…', 'success');
+    showAlert('Login successful! Redirecting…', 'success');
     setTimeout(() => window.location.href = './index.html', 1000);
   }
 
@@ -183,11 +183,11 @@
     if (pwd.length < 8) { showAlert('⚠️ Password must be at least 8 characters.'); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showAlert('⚠️ Please enter a valid email.'); return; }
     const users = JSON.parse(localStorage.getItem('mt_users') || '[]');
-    if (users.find(u => u.email === email)) { showAlert('❌ An account with this email already exists.'); return; }
+    if (users.find(u => u.email === email)) { showAlert(' An account with this email already exists.'); return; }
     const user = { id: 'usr_' + Date.now(), name, email, role: selectedRole, pwdHash: simpleHash(pwd), createdAt: new Date().toISOString() };
     users.push(user);
     localStorage.setItem('mt_users', JSON.stringify(users));
-    showAlert('✅ Account created! Logging you in…', 'success');
+    showAlert(' Account created! Logging you in…', 'success');
     setTimeout(() => { document.getElementById('login-email').value = email; document.getElementById('login-pwd').value = pwd; handleLogin(); }, 1200);
   }
 
@@ -195,8 +195,8 @@
     const email = document.getElementById('forgot-email').value.trim();
     if (!email) { showAlert('⚠️ Please enter your email.'); return; }
     const users = JSON.parse(localStorage.getItem('mt_users') || '[]');
-    if (!users.find(u => u.email === email)) { showAlert('❌ No account found with that email.'); return; }
-    showAlert(`✅ Reset instructions sent to ${email}. (Demo: check console for token)`, 'success');
+    if (!users.find(u => u.email === email)) { showAlert(' No account found with that email.'); return; }
+    showAlert(` Reset instructions sent to ${email}. (Demo: check console for token)`, 'success');
     console.log('[MediTrack] Password reset token for', email, ':', simpleHash(email + Date.now()));
   }
 
@@ -217,7 +217,7 @@
   // Auto-login if valid session exists
   const session = JSON.parse(localStorage.getItem('mt_session') || 'null');
   if (session && session.expires > Date.now()) {
-    showAlert(`✅ Welcome back, ${session.name}! Redirecting…`, 'success');
+    showAlert(` Welcome back, ${session.name}! Redirecting…`, 'success');
     setTimeout(() => window.location.href = './index.html', 800);
   }
 </script>
