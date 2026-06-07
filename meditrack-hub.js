@@ -1,3 +1,4 @@
+<script>
 /**
  * MediTrack Enhanced Hub — Drop-in feature launcher
  * Add <script src="meditrack-hub.js"></script> to any MediTrack page
@@ -100,7 +101,6 @@
   `;
   document.head.appendChild(style);
 
-  // Apply saved theme
   if (MT.theme === 'light') document.body.classList.add('mt-light-mode');
 
   // ── FAB ────────────────────────────────────────────────────────────
@@ -123,41 +123,13 @@
         <button id="mt-close-btn" aria-label="${MT.t('close')}">✕</button>
       </div>
       <div id="mt-grid">
-        <div class="mt-tile" data-feature="ai">
-          <div class="mt-icon">🤖</div>
-          <div class="mt-label">${MT.t('ai')}</div>
-          <div class="mt-desc">Gemini-powered</div>
-        </div>
-        <div class="mt-tile" data-feature="ocr">
-          <div class="mt-icon">📷</div>
-          <div class="mt-label">${MT.t('ocr')}</div>
-          <div class="mt-desc">Scan prescription</div>
-        </div>
-        <div class="mt-tile" data-feature="analytics">
-          <div class="mt-icon">📊</div>
-          <div class="mt-label">${MT.t('analytics')}</div>
-          <div class="mt-desc">Health trends</div>
-        </div>
-        <div class="mt-tile" data-feature="interactions">
-          <div class="mt-icon">⚠️</div>
-          <div class="mt-label">Drug Check</div>
-          <div class="mt-desc">Interaction alert</div>
-        </div>
-        <div class="mt-tile" data-feature="voice">
-          <div class="mt-icon">🎙️</div>
-          <div class="mt-label">${MT.t('voice')}</div>
-          <div class="mt-desc">Voice commands</div>
-        </div>
-        <div class="mt-tile" data-feature="settings">
-          <div class="mt-icon">⚙️</div>
-          <div class="mt-label">${MT.t('settings')}</div>
-          <div class="mt-desc">Theme & language</div>
-        </div>
-        <div class="mt-tile sos" data-feature="sos">
-          <div class="mt-icon">🆘</div>
-          <div class="mt-label">${MT.t('sos')}</div>
-          <div class="mt-desc">Emergency alert</div>
-        </div>
+        <div class="mt-tile" data-feature="ai"><div class="mt-icon">🤖</div><div class="mt-label">${MT.t('ai')}</div><div class="mt-desc">Gemini-powered</div></div>
+        <div class="mt-tile" data-feature="ocr"><div class="mt-icon">📷</div><div class="mt-label">${MT.t('ocr')}</div><div class="mt-desc">Scan prescription</div></div>
+        <div class="mt-tile" data-feature="analytics"><div class="mt-icon">📊</div><div class="mt-label">${MT.t('analytics')}</div><div class="mt-desc">Health trends</div></div>
+        <div class="mt-tile" data-feature="interactions"><div class="mt-icon">⚠️</div><div class="mt-label">Drug Check</div><div class="mt-desc">Interaction alert</div></div>
+        <div class="mt-tile" data-feature="voice"><div class="mt-icon">🎙️</div><div class="mt-label">${MT.t('voice')}</div><div class="mt-desc">Voice commands</div></div>
+        <div class="mt-tile" data-feature="settings"><div class="mt-icon">⚙️</div><div class="mt-label">${MT.t('settings')}</div><div class="mt-desc">Theme & language</div></div>
+        <div class="mt-tile sos" data-feature="sos"><div class="mt-icon">🆘</div><div class="mt-label">${MT.t('sos')}</div><div class="mt-desc">Emergency alert</div></div>
       </div>
     </div>
   `;
@@ -169,7 +141,6 @@
   modal.innerHTML = `<div id="mt-modal-inner"><div class="mt-modal-header"><h3 id="mt-modal-title">Feature</h3><button id="mt-modal-close" class="mt-btn mt-btn-secondary" style="padding:6px 14px;">✕ Close</button></div><div id="mt-modal-body"></div></div>`;
   document.body.appendChild(modal);
 
-  // ── Event listeners ────────────────────────────────────────────────
   fab.addEventListener('click', () => overlay.classList.add('open'));
   document.getElementById('mt-close-btn').addEventListener('click', () => overlay.classList.remove('open'));
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
@@ -194,13 +165,12 @@
     if (MT._voiceRecog) { MT._voiceRecog.stop(); MT._voiceRecog = null; }
   }
 
-  // ── FEATURES ───────────────────────────────────────────────────────
   function openFeature(name) {
     const features = { ai, ocr, analytics, interactions, voice, settings, sos };
     if (features[name]) features[name]();
   }
 
-  // 1. AI Medicine Assistant ──────────────────────────────────────────
+  // 1. AI Assistant ──────────────────────────────────────────────────
   function ai() {
     openModal('🤖 AI Medicine Assistant', `
       <p style="color:var(--mt-muted);font-size:13px;margin-bottom:12px;">Ask about medicines, side effects, dosage, interactions & more.</p>
@@ -224,24 +194,17 @@
       inp.value = '';
       addChat('user', q);
       addChat('ai', '⏳ Thinking…', 'typing');
-
       const GEMINI_KEY = localStorage.getItem('mt_gemini_key') || '';
-      if (!GEMINI_KEY) {
-        replaceTyping('⚠️ Please add your Gemini API key in Settings → AI Key.');
-        return;
-      }
+      if (!GEMINI_KEY) { replaceTyping('⚠️ Please add your Gemini API key in Settings → AI Key.'); return; }
       try {
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contents: [{ parts: [{ text: `You are a professional medicine assistant. Answer concisely and safely. Always recommend consulting a doctor. Question: ${q}` }] }] })
         });
         const data = await res.json();
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response.';
         replaceTyping(text);
-      } catch (e) {
-        replaceTyping('❌ Error reaching AI. Check your API key and internet connection.');
-      }
+      } catch (e) { replaceTyping('❌ Error reaching AI. Check your API key and internet connection.'); }
     }
     function addChat(role, text, id) {
       const chat = document.getElementById('mt-chat');
@@ -253,13 +216,10 @@
       chat.appendChild(d);
       chat.scrollTop = chat.scrollHeight;
     }
-    function replaceTyping(text) {
-      const t = document.getElementById('mt-typing');
-      if (t) t.textContent = text;
-    }
+    function replaceTyping(text) { const t = document.getElementById('mt-typing'); if (t) t.textContent = text; }
   }
 
-  // 2. OCR Prescription Scanner ──────────────────────────────────────
+  // 2. OCR ───────────────────────────────────────────────────────────
   function ocr() {
     openModal('📷 OCR Prescription Scanner', `
       <p style="color:var(--mt-muted);font-size:13px;">Upload a prescription image to extract medicine names automatically.</p>
@@ -272,7 +232,6 @@
       const res = document.getElementById('mt-ocr-result');
       if (!file) { res.innerHTML = '<p style="color:var(--mt-warn);">Please select an image first.</p>'; return; }
       res.innerHTML = '<p style="color:var(--mt-muted);">⏳ Loading OCR engine… (first load may take 15s)</p>';
-
       if (!window.Tesseract) {
         const s = document.createElement('script');
         s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
@@ -284,23 +243,13 @@
         const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
         const medKeywords = /mg|ml|tablet|capsule|syrup|injection|cream|gel|drop|dose|daily|twice|thrice|tab|cap/i;
         const meds = lines.filter(l => medKeywords.test(l));
-        res.innerHTML = `
-          <div style="background:var(--mt-surface);border-radius:12px;border:1px solid var(--mt-border);padding:16px;">
-            <p style="font-size:13px;font-weight:700;color:var(--mt-text);margin:0 0 10px;">📋 Extracted Text</p>
-            <div style="font-size:12px;color:var(--mt-muted);max-height:120px;overflow-y:auto;font-family:monospace;">${lines.join('<br>')}</div>
-            ${meds.length ? `<p style="font-size:13px;font-weight:700;color:var(--mt-success);margin:14px 0 8px;">💊 Detected Medicines</p>
-            ${meds.map(m=>`<div style="background:rgba(16,185,129,.1);border-radius:8px;padding:8px 12px;margin:4px 0;font-size:13px;color:var(--mt-text);display:flex;justify-content:space-between;align-items:center;">${m}<span class="mt-badge mt-badge-success">✓ Detected</span></div>`).join('')}` : '<p style="color:var(--mt-warn);font-size:13px;margin-top:12px;">⚠️ No clear medicine entries detected. Try a clearer image.</p>'}
-          </div>
-        `;
-      } catch (e) {
-        res.innerHTML = '<p style="color:var(--mt-danger);">❌ OCR failed. Try a clearer, well-lit image.</p>';
-      }
+        res.innerHTML = `<div style="background:var(--mt-surface);border-radius:12px;border:1px solid var(--mt-border);padding:16px;"><p style="font-size:13px;font-weight:700;color:var(--mt-text);margin:0 0 10px;">📋 Extracted Text</p><div style="font-size:12px;color:var(--mt-muted);max-height:120px;overflow-y:auto;font-family:monospace;">${lines.join('<br>')}</div>${meds.length ? `<p style="font-size:13px;font-weight:700;color:var(--mt-success);margin:14px 0 8px;">💊 Detected Medicines</p>${meds.map(m=>`<div style="background:rgba(16,185,129,.1);border-radius:8px;padding:8px 12px;margin:4px 0;font-size:13px;color:var(--mt-text);display:flex;justify-content:space-between;align-items:center;">${m}<span class="mt-badge mt-badge-success">✓ Detected</span></div>`).join('')}` : '<p style="color:var(--mt-warn);font-size:13px;margin-top:12px;">⚠️ No clear medicine entries detected. Try a clearer image.</p>'}</div>`;
+      } catch (e) { res.innerHTML = '<p style="color:var(--mt-danger);">❌ OCR failed. Try a clearer, well-lit image.</p>'; }
     });
   }
 
-  // 3. Analytics Dashboard ──────────────────────────────────────────
-  const SHEET_URL = "https://script.google.com/macros/s/AKfycbz4MGPFA_qdPuFMyn04_524T_rXId6KebEKIvfWFUXc-wyU-r4jObBQS960T7HcrxY9/exec";
-  const PROXY_URL = "https://api.allorigins.win/get?url=";
+  // 3. Analytics — FIXED: no proxy, direct fetch ─────────────────────
+  const SHEET_URL = "https://script.google.com/macros/s/AKfycbw2jT6n1A7vnyOHCoERZaWd-hjMjYxgS0Hr0dggK1VAoeRHX03Ks4a3cCO74PJC3Ioi/exec";
 
   function analytics() {
     openModal('📊 Real Health Analytics', `
@@ -309,20 +258,17 @@
       </div>
     `);
 
-    fetch(PROXY_URL + encodeURIComponent(SHEET_URL))
-      .then(res => res.json())
-      .then(wrapper => JSON.parse(wrapper.contents))
+    fetch(SHEET_URL, { redirect: "follow" })
+      .then(res => res.text())
+      .then(text => JSON.parse(text))
       .then(records => {
         if (!records || !records.length) {
           document.getElementById('mt-analytics-content').innerHTML = "<p>No patient records found.</p>";
           return;
         }
-
         const totalPatients = records.length;
-        let totalSugar = 0, totalHR = 0, totalWeight = 0, totalSpo2 = 0;
-        let male = 0, female = 0;
+        let totalSugar = 0, totalHR = 0, totalWeight = 0, totalSpo2 = 0, male = 0, female = 0;
         const hrTrend = [];
-
         records.forEach(r => {
           totalSugar += Number(r.blood_sugar || 0);
           totalHR += Number(r.heart_rate || 0);
@@ -332,13 +278,11 @@
           if ((r.gender || '').toLowerCase() === 'male') male++;
           if ((r.gender || '').toLowerCase() === 'female') female++;
         });
-
         const avgSugar = (totalSugar / totalPatients).toFixed(1);
         const avgHR = (totalHR / totalPatients).toFixed(1);
         const avgWeight = (totalWeight / totalPatients).toFixed(1);
         const avgSpo2 = (totalSpo2 / totalPatients).toFixed(1);
         const latest = records[records.length - 1];
-
         document.getElementById('mt-analytics-content').innerHTML = `
           <div class="mt-stat-grid">
             <div class="mt-stat-card"><div class="val">${totalPatients}</div><div class="lbl">Patients</div></div>
@@ -361,32 +305,23 @@
             <canvas id="mt-chart-hr"></canvas>
           </div>
         `;
-
         loadScript('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js', () => {
           new Chart(document.getElementById('mt-chart-hr'), {
             type: 'line',
             data: {
               labels: records.map((_, i) => 'Record ' + (i + 1)),
-              datasets: [{
-                label: 'Heart Rate',
-                data: hrTrend,
-                borderColor: '#06b6d4',
-                backgroundColor: 'rgba(6,182,212,.1)',
-                tension: 0.4,
-                fill: true
-              }]
+              datasets: [{ label: 'Heart Rate', data: hrTrend, borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,.1)', tension: 0.4, fill: true }]
             },
             options: { responsive: true, maintainAspectRatio: true }
           });
         });
       })
       .catch(err => {
-        document.getElementById('mt-analytics-content').innerHTML =
-          `<p style="color:red;">Failed to load analytics.<br>${err.message}</p>`;
+        document.getElementById('mt-analytics-content').innerHTML = `<p style="color:red;">Failed to load analytics.<br>${err.message}</p>`;
       });
   }
 
-  // 4. Drug Interaction Checker ──────────────────────────────────────
+  // 4. Drug Interactions ─────────────────────────────────────────────
   function interactions() {
     const knownInteractions = [
       { drugs: ['warfarin', 'aspirin'], risk: 'HIGH', effect: 'Increased bleeding risk — can cause serious haemorrhage.' },
@@ -409,22 +344,12 @@
       const res = document.getElementById('mt-drug-result');
       if (drugs.length < 2) { res.innerHTML = '<p style="color:var(--mt-warn);">Please enter at least 2 medicines.</p>'; return; }
       const found = knownInteractions.filter(i => i.drugs.some(d => drugs.some(u => u.includes(d) || d.includes(u))) && i.drugs.filter(d => drugs.some(u => u.includes(d) || d.includes(u))).length >= 2);
-      if (!found.length) {
-        res.innerHTML = `<div style="background:rgba(16,185,129,.1);border-radius:12px;padding:16px;border:1px solid rgba(16,185,129,.3);"><p style="color:var(--mt-success);font-weight:700;margin:0;">✅ No known dangerous interactions detected.</p><p style="color:var(--mt-muted);font-size:12px;margin:8px 0 0;">Always consult your doctor or pharmacist for complete interaction checking.</p></div>`;
-        return;
-      }
-      res.innerHTML = found.map(i => {
-        const color = i.risk === 'HIGH' ? 'var(--mt-danger)' : 'var(--mt-warn)';
-        const bg = i.risk === 'HIGH' ? 'rgba(239,68,68,.1)' : 'rgba(245,158,11,.1)';
-        return `<div style="background:${bg};border-radius:12px;padding:16px;border:1px solid ${color};margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><strong style="color:${color};">${i.risk} RISK</strong><span style="font-size:12px;color:var(--mt-muted);">${i.drugs.join(' + ')}</span></div><p style="font-size:14px;color:var(--mt-text);margin:0;">${i.effect}</p></div>`;
-      }).join('') + `<p style="font-size:12px;color:var(--mt-muted);margin-top:8px;">⚕️ This is not exhaustive. Always verify with your pharmacist.</p>`;
+      if (!found.length) { res.innerHTML = `<div style="background:rgba(16,185,129,.1);border-radius:12px;padding:16px;border:1px solid rgba(16,185,129,.3);"><p style="color:var(--mt-success);font-weight:700;margin:0;">✅ No known dangerous interactions detected.</p><p style="color:var(--mt-muted);font-size:12px;margin:8px 0 0;">Always consult your doctor or pharmacist for complete interaction checking.</p></div>`; return; }
+      res.innerHTML = found.map(i => { const color = i.risk === 'HIGH' ? 'var(--mt-danger)' : 'var(--mt-warn)'; const bg = i.risk === 'HIGH' ? 'rgba(239,68,68,.1)' : 'rgba(245,158,11,.1)'; return `<div style="background:${bg};border-radius:12px;padding:16px;border:1px solid ${color};margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><strong style="color:${color};">${i.risk} RISK</strong><span style="font-size:12px;color:var(--mt-muted);">${i.drugs.join(' + ')}</span></div><p style="font-size:14px;color:var(--mt-text);margin:0;">${i.effect}</p></div>`; }).join('') + `<p style="font-size:12px;color:var(--mt-muted);margin-top:8px;">⚕️ This is not exhaustive. Always verify with your pharmacist.</p>`;
     });
   }
 
-  // 5. Voice Assistant ──────────────────────────────────────────────
-  // BUG FIX: the original voice() function had JS code written inside the HTML
-  // template string — the backtick closing the template was missing, causing a
-  // syntax error that crashed the entire script and prevented the hub from loading.
+  // 5. Voice ─────────────────────────────────────────────────────────
   function voice() {
     openModal('🎙️ Voice Assistant', `
       <p style="color:var(--mt-muted);font-size:13px;margin-bottom:16px;">Use voice commands to navigate MediTrack hands-free.</p>
@@ -442,8 +367,6 @@
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--mt-border);font-size:13px;"><span style="color:var(--mt-accent);font-family:monospace;">"emergency sos"</span><span style="color:var(--mt-muted);">Activates SOS</span></div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;"><span style="color:var(--mt-accent);font-family:monospace;">"toggle theme"</span><span style="color:var(--mt-muted);">Switch dark/light mode</span></div>
     `);
-
-    // JS runs here, OUTSIDE the template string
     const btn = document.getElementById('mt-voice-btn');
     const statusEl = document.getElementById('mt-voice-status');
     const textEl = document.getElementById('mt-voice-text');
@@ -461,13 +384,7 @@
       const transcript = Array.from(e.results).map(r => r[0].transcript).join('').toLowerCase();
       textEl.textContent = transcript;
       if (e.results[e.results.length - 1].isFinal) {
-        const cmds = {
-          'open ai assistant': () => { closeModal(); ai(); },
-          'show analytics': () => { closeModal(); analytics(); },
-          'check interactions': () => { closeModal(); interactions(); },
-          'emergency sos': () => { closeModal(); sos(); },
-          'toggle theme': toggleTheme
-        };
+        const cmds = { 'open ai assistant': () => { closeModal(); ai(); }, 'show analytics': () => { closeModal(); analytics(); }, 'check interactions': () => { closeModal(); interactions(); }, 'emergency sos': () => { closeModal(); sos(); }, 'toggle theme': toggleTheme };
         const match = Object.keys(cmds).find(k => transcript.includes(k));
         if (match) { cmds[match](); statusEl.textContent = `✅ Command recognized: "${match}"`; }
         else { statusEl.textContent = '❓ Command not recognized. Try again.'; }
@@ -477,7 +394,7 @@
     recog.onerror = () => { statusEl.textContent = '❌ Error. Please try again.'; listening = false; btn.textContent = '🎙️'; };
   }
 
-  // 6. Settings ────────────────────────────────────────────────────
+  // 6. Settings ──────────────────────────────────────────────────────
   function settings() {
     openModal('⚙️ Settings', `
       <div style="display:flex;flex-direction:column;gap:18px;">
@@ -493,7 +410,6 @@
     document.getElementById('mt-light-btn').addEventListener('click', () => { MT.theme = 'light'; localStorage.setItem('mt_theme', 'light'); document.body.classList.add('mt-light-mode'); });
     document.getElementById('mt-save-key').addEventListener('click', () => { localStorage.setItem('mt_gemini_key', document.getElementById('mt-gemini-key').value.trim()); alert('✅ API key saved!'); });
     document.getElementById('mt-save-emer').addEventListener('click', () => { localStorage.setItem('mt_emergency', JSON.stringify({ name: document.getElementById('mt-emer-name').value, phone: document.getElementById('mt-emer-phone').value })); alert('✅ Emergency contact saved!'); });
-    // BUG FIX: was [[...]] (array inside array) — keys were never iterated, nothing got removed
     document.getElementById('mt-clear-btn').addEventListener('click', () => {
       if (confirm('⚠️ This will delete ALL MediTrack data. Continue?')) {
         ['mt_metrics', 'mt_user', 'mt_gemini_key', 'mt_emergency', 'mt_reminders', 'mt_session'].forEach(k => localStorage.removeItem(k));
@@ -504,10 +420,9 @@
     });
   }
 
-  // 7. SOS Emergency ───────────────────────────────────────────────
+  // 7. SOS ───────────────────────────────────────────────────────────
   function sos() {
     const em = JSON.parse(localStorage.getItem('mt_emergency') || '{}');
-    // BUG FIX: read reminders to get current medicines instead of hardcoding 'Not Available'
     const reminders = JSON.parse(localStorage.getItem('mt_reminders') || '[]');
     const meds = reminders.length ? reminders.map(r => r.medicine).join(', ') : 'Not on record';
     const metrics = JSON.parse(localStorage.getItem('mt_metrics') || '{}');
@@ -545,7 +460,7 @@
     document.getElementById('mt-sos-cancel').addEventListener('click', () => { clearInterval(timer); closeModal(); });
   }
 
-  // ── Helper: load external script ──────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────────────
   function loadScript(src, cb) {
     if (document.querySelector(`script[src="${src}"]`)) { if (window.Chart) cb(); else setTimeout(() => loadScript(src, cb), 100); return; }
     const s = document.createElement('script');
@@ -554,10 +469,8 @@
   }
   function toggleTheme() { MT.theme = MT.theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('mt_theme', MT.theme); document.body.classList.toggle('mt-light-mode'); }
 
-  // ── PWA Service Worker Registration ───────────────────────────────
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  }
+  if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(() => {}); }
 
   console.log(`%c⚕️ MediTrack Hub v${MT.version} loaded`, 'color:#06b6d4;font-weight:bold;font-size:14px;');
 })();
+</script>
