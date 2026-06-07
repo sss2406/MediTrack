@@ -1,47 +1,294 @@
-<div class="dashboard">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+const session = JSON.parse(localStorage.getItem('mt_session') || 'null');
+
+if (!session || session.expires < Date.now()) {
+  localStorage.removeItem('mt_session');
+  localStorage.removeItem('mt_user');
+  window.location.href = 'auth.html';
+}
+</script>
+
+<title>MediTrack Dashboard</title>
+
+<link rel="manifest" href="./manifest.json" />
+<meta name="theme-color" content="#06b6d4">
+
+<style>
+
+:root{
+  --bg:#0f172a;
+  --surface:#1e293b;
+  --card:#243447;
+  --accent:#06b6d4;
+  --accent2:#8b5cf6;
+  --text:#f1f5f9;
+  --muted:#94a3b8;
+  --border:#334155;
+  --success:#10b981;
+  --danger:#ef4444;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  background:var(--bg);
+  background-image:
+    radial-gradient(
+      ellipse at 20% 50%,
+      rgba(6,182,212,.08) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 80% 20%,
+      rgba(139,92,246,.08) 0%,
+      transparent 50%
+    );
+
+  color:var(--text);
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+
+  min-height:100vh;
+  padding:30px;
+}
+
+.header{
+  text-align:center;
+  margin-bottom:30px;
+}
+
+.header h1{
+  background:
+  linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent2)
+  );
+
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+
+  font-size:34px;
+}
+
+.header p{
+  color:var(--muted);
+  margin-top:10px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fit,minmax(250px,1fr));
+
+  gap:20px;
+}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:20px;
+}
+
+.card h3{
+  margin-bottom:15px;
+  color:var(--accent);
+}
+
+.value{
+  font-size:32px;
+  font-weight:700;
+}
+
+.small{
+  color:var(--muted);
+  margin-top:8px;
+}
+
+.actions{
+  margin-top:30px;
+
+  display:flex;
+  flex-wrap:wrap;
+
+  gap:15px;
+}
+
+.btn{
+  flex:1;
+
+  text-align:center;
+
+  padding:14px;
+
+  border:none;
+
+  border-radius:12px;
+
+  text-decoration:none;
+
+  font-weight:700;
+
+  cursor:pointer;
+}
+
+.primary{
+  background:
+  linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent2)
+  );
+
+  color:white;
+}
+
+.secondary{
+  background:var(--card);
+  color:var(--text);
+  border:1px solid var(--border);
+}
+
+.list{
+  margin-top:10px;
+}
+
+.list div{
+  padding:8px 0;
+  border-bottom:1px solid var(--border);
+}
+
+.loading{
+  text-align:center;
+  color:var(--muted);
+  margin-top:30px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
 
 <h1>MediTrack Dashboard</h1>
 
-<div id="stats">
-
 <p>
-Active Medicines:
-<strong id="activeMeds">0</strong>
-</p>
-
-<p>
-Upcoming Reminders:
-<strong id="todayDoses">0</strong>
-</p>
-
-<p>
-Low Stock Alerts:
-<strong id="lowStock">0</strong>
+Medication Management & Health Analytics
 </p>
 
 </div>
 
-<div class="divider"></div>
+<div class="grid">
 
-<button class="sheet-btn"
-onclick="window.location.href='add-record.html'">
+<div class="card">
+<h3>Active Medicines</h3>
+<div class="value" id="activeMedicines">0</div>
+<div class="small">
+Currently Active
+</div>
+</div>
+
+<div class="card">
+<h3>Today's Reminders</h3>
+<div class="value" id="todayReminders">0</div>
+<div class="small">
+Scheduled Today
+</div>
+</div>
+
+<div class="card">
+<h3>Low Stock Alerts</h3>
+<div class="value" id="lowStock">0</div>
+<div class="small">
+Needs Refill Soon
+</div>
+</div>
+
+<div class="card">
+<h3>Latest Weight</h3>
+<div class="value" id="latestWeight">--</div>
+<div class="small">
+kg
+</div>
+</div>
+
+<div class="card">
+<h3>Blood Pressure</h3>
+<div class="value" id="latestBP">--</div>
+<div class="small">
+Latest Reading
+</div>
+</div>
+
+<div class="card">
+<h3>Blood Sugar</h3>
+<div class="value" id="latestSugar">--</div>
+<div class="small">
+Latest Reading
+</div>
+</div>
+
+</div>
+
+<div class="card" style="margin-top:25px;">
+
+<h3>Upcoming Medicines</h3>
+
+<div
+id="medicineList"
+class="list">
+
+Loading...
+
+</div>
+
+</div>
+
+<div class="actions">
+
+<a
+href="add-record.html"
+class="btn primary">
 Add Record
+</a>
+
+<button
+class="btn secondary"
+onclick="loadDashboard()">
+Refresh
 </button>
 
-<br><br>
-
-<button class="sheet-btn"
-onclick="window.open('https://docs.google.com/spreadsheets/d/1gqB3-KYs2ca_1yqEoWaLsIZIDODC-1erskSdUJrPE1k/edit')">
-View Data
-</button>
-
-<br>
-
-<a href="index.html"
-class="back-btn">
-← Back to Home
+<a
+href="index.html"
+class="btn secondary">
+Home
 </a>
 
 </div>
 
+<div
+id="loading"
+class="loading">
+Loading real data...
+</div>
+
 <script src="dashboard.js"></script>
+<script src="reminder.js"></script>
+
+</body>
+</html>
