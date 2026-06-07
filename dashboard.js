@@ -1,47 +1,97 @@
-document.addEventListener("DOMContentLoaded",()=>{
+const API_URL =
+"https://script.google.com/macros/s/AKfycbwxrJGBx1_FEX-7Wa1andtXPe74OvlAFKlkI2lp_c1nGstidPx9Yj7-mQkq4s82pG0q/exec";
 
-  const reminders =
-    JSON.parse(
-      localStorage.getItem("mt_reminders")
-    ) || [];
+async function loadDashboard() {
 
-  document.getElementById("activeMeds").textContent =
-    reminders.length;
+  try {
 
-  document.getElementById("todayDoses").textContent =
-    reminders.length;
+    document.getElementById("loading").innerText =
+      "Loading real data...";
 
-  let lowStockCount = 0;
+    const response = await fetch(API_URL);
 
-  const records =
-    JSON.parse(
-      localStorage.getItem("mt_records")
-    ) || [];
+    const records = await response.json();
 
-  records.forEach(record=>{
+    if (!records.length) {
 
-    const stock =
-      Number(record.stock);
+      document.getElementById("loading").innerText =
+        "No records found";
 
-    const daily =
-      Number(record.daily_consumption);
-
-    if(daily > 0){
-
-      const daysLeft =
-      stock/daily;
-
-      if(daysLeft <= 7){
-
-        lowStockCount++;
-
-      }
-
+      return;
     }
 
-  });
+    const latest =
+      records[records.length - 1];
 
-  document.getElementById("lowStock").textContent =
-    lowStockCount;
+    document.getElementById("activeMedicines").innerText =
+      records.length;
 
-});
+    document.getElementById("latestWeight").innerText =
+      latest["Weight"] || "--";
+
+    document.getElementById("latestBP").innerText =
+      latest["Blood Pressure"] || "--";
+
+    document.getElementById("latestSugar").innerText =
+      latest["Blood Sugar"] || "--";
+
+    const reminders =
+      JSON.parse(localStorage.getItem("mt_reminders")) || [];
+
+    document.getElementById("todayReminders").innerText =
+      reminders.length;
+
+    let lowStockCount = 0;
+
+    let medicineHTML = "";
+
+    records.forEach(record => {
+
+      const stock =
+        Number(record["Stock"] || 0);
+
+      const daily =
+        Number(record["Daily Consumption"] || 1);
+
+      const daysLeft =
+        Math.floor(stock / daily);
+
+      if(daysLeft <= 7){
+        lowStockCount++;
+      }
+
+      medicineHTML += `
+      <div>
+        <strong>${record["Medicine Name"]}</strong>
+        <br>
+        Stock: ${stock}
+        |
+        Days Left: ${daysLeft}
+      </div>
+      `;
+
+    });
+
+    document.getElementById("lowStock").innerText =
+      lowStockCount;
+
+    document.getElementById("medicineList").innerHTML =
+      medicineHTML || "No medicines available";
+
+    document.getElementById("loading").innerText =
+      "Dashboard Updated";
+
+  }
+
+  catch(error){
+
+    console.error(error);
+
+    document.getElementById("loading").innerText =
+      "Unable to load data";
+
+  }
+
+}
+
+loadDashboard();
