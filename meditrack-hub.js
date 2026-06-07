@@ -532,18 +532,18 @@ function openFeature(name) {
       <div style="background:var(--mt-surface);border-radius:12px;border:1px solid var(--mt-border);padding:14px;margin-bottom:14px;">
         <p id="mt-voice-text" style="color:var(--mt-text);font-size:16px;min-height:28px;text-align:center;margin:0;font-style:italic;">…</p>
       </div>
-     <p style="font-size:13px;font-weight:700;color:var(--mt-text);margin-bottom:8px;">💬 Available Commands</p>
+<p style="font-size:13px;font-weight:700;color:var(--mt-text);margin-bottom:8px;">💬 Available Commands</p>
 ${[
   ['open ai assistant','Opens AI chat'],
   ['show analytics','Opens health analytics'],
   ['check interactions','Drug interaction checker'],
   ['emergency sos','Activates SOS'],
   ['toggle theme','Switch dark/light mode']
-].map(([cmd,desc]) => `
-  <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--mt-border);font-size:13px;">
-    <span style="color:var(--mt-accent);font-family:monospace;">"${cmd}"</span>
-    <span style="color:var(--mt-muted);">${desc}</span>
-  </div>
+].map(([cmd,desc])=>`
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--mt-border);font-size:13px;">
+  <span style="color:var(--mt-accent);font-family:monospace;">"${cmd}"</span>
+  <span style="color:var(--mt-muted);">${desc}</span>
+</div>
 `).join('')}
     const btn = document.getElementById('mt-voice-btn');
     const statusEl = document.getElementById('mt-voice-status');
