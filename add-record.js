@@ -1,6 +1,6 @@
 
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4MGPFA_qdPuFMyn04_524T_rXId6KebEKIvfWFUXc-wyU-r4jObBQS960T7HcrxY9/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpViJ1ngnoGath8ZqeRaZOpAck71JItjPnqbWKLou1M9qm5L-1tZeyKkDPL2ndzGWO/exec";
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("patientForm");
