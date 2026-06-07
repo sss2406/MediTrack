@@ -316,48 +316,181 @@
   }
 
   // 3. Analytics Dashboard ──────────────────────────────────────────
-  function analytics() {
-    const metrics = JSON.parse(localStorage.getItem('mt_metrics') || '{}');
-    openModal('📊 Health Analytics', `
-      <div class="mt-stat-grid">
-        <div class="mt-stat-card"><div class="val">${metrics.bp || '120/80'}</div><div class="lbl">Blood Pressure</div></div>
-        <div class="mt-stat-card"><div class="val">${metrics.sugar || '98'} mg/dL</div><div class="lbl">Blood Sugar</div></div>
-        <div class="mt-stat-card"><div class="val">${metrics.hr || '72'} bpm</div><div class="lbl">Heart Rate</div></div>
-        <div class="mt-stat-card"><div class="val">${metrics.spo2 || '98'}%</div><div class="lbl">SpO₂</div></div>
-      </div>
-      <div style="margin-top:20px;">
-        <p style="font-size:13px;font-weight:700;color:var(--mt-text);margin-bottom:10px;">📈 Weekly Trend (Heart Rate)</p>
-        <div style="position:relative;height:200px;"><canvas id="mt-chart-hr" role="img" aria-label="Heart rate trend chart for the past 7 days">Heart rate trend over past week.</canvas></div>
-      </div>
-      <div style="margin-top:20px;padding:14px;background:var(--mt-surface);border-radius:12px;border:1px solid var(--mt-border);">
-        <p style="font-size:13px;font-weight:700;color:var(--mt-text);margin:0 0 10px;">📝 Log Today's Vitals</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div><label class="mt-label-text" style="margin-top:0;">Blood Pressure</label><input id="mt-log-bp" class="mt-input" placeholder="120/80"/></div>
-          <div><label class="mt-label-text" style="margin-top:0;">Heart Rate</label><input id="mt-log-hr" class="mt-input" type="number" placeholder="72"/></div>
-          <div><label class="mt-label-text" style="margin-top:0;">Blood Sugar (mg/dL)</label><input id="mt-log-sugar" class="mt-input" type="number" placeholder="98"/></div>
-          <div><label class="mt-label-text" style="margin-top:0;">SpO₂ (%)</label><input id="mt-log-spo2" class="mt-input" type="number" placeholder="98"/></div>
-        </div>
-        <button class="mt-btn mt-btn-primary" style="margin-top:14px;" id="mt-log-save">💾 Save Vitals</button>
-      </div>
-    `);
-    // Load Chart.js and render
-    loadScript('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js', () => {
-      const history = JSON.parse(localStorage.getItem('mt_hr_history') || '[72,75,71,74,73,76,72]');
-      const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-      new Chart(document.getElementById('mt-chart-hr'), {
-        type: 'line',
-        data: { labels: days, datasets: [{ label: 'BPM', data: history, borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,.1)', tension: 0.4, fill: true, pointBackgroundColor: '#06b6d4', pointRadius: 5 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }, y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' }, min: 55, max: 105 } } }
+ function analytics() {
+
+  openModal('📊 Real Health Analytics', `
+    <div id="mt-analytics-content">
+      <p style="text-align:center;color:var(--mt-muted);">
+        Loading patient data...
+      </p>
+    </div>
+  `);
+
+  fetch("https://script.google.com/macros/s/AKfycbz4MGPFA_qdPuFMyn04_524T_rXId6KebEKIvfWFUXc-wyU-r4jObBQS960T7HcrxY9/exec")
+    .then(res => res.json())
+    .then(records => {
+
+      if (!records || !records.length) {
+        document.getElementById('mt-analytics-content').innerHTML =
+          "<p>No patient records found.</p>";
+        return;
+      }
+
+      const totalPatients = records.length;
+
+      let totalSugar = 0;
+      let totalHR = 0;
+      let totalWeight = 0;
+      let totalSpo2 = 0;
+
+      let male = 0;
+      let female = 0;
+
+      const hrTrend = [];
+
+      records.forEach(r => {
+
+        totalSugar += Number(r.blood_sugar || 0);
+        totalHR += Number(r.heart_rate || 0);
+        totalWeight += Number(r.weight || 0);
+        totalSpo2 += Number(r.spo2 || 0);
+
+        hrTrend.push(Number(r.heart_rate || 0));
+
+        if ((r.gender || '').toLowerCase() === 'male') male++;
+        if ((r.gender || '').toLowerCase() === 'female') female++;
+
       });
+
+      const avgSugar =
+        (totalSugar / totalPatients).toFixed(1);
+
+      const avgHR =
+        (totalHR / totalPatients).toFixed(1);
+
+      const avgWeight =
+        (totalWeight / totalPatients).toFixed(1);
+
+      const avgSpo2 =
+        (totalSpo2 / totalPatients).toFixed(1);
+
+      const latest =
+        records[records.length - 1];
+
+      document.getElementById('mt-analytics-content').innerHTML = `
+
+        <div class="mt-stat-grid">
+
+          <div class="mt-stat-card">
+            <div class="val">${totalPatients}</div>
+            <div class="lbl">Patients</div>
+          </div>
+
+          <div class="mt-stat-card">
+            <div class="val">${avgSugar}</div>
+            <div class="lbl">Avg Blood Sugar</div>
+          </div>
+
+          <div class="mt-stat-card">
+            <div class="val">${avgHR}</div>
+            <div class="lbl">Avg Heart Rate</div>
+          </div>
+
+          <div class="mt-stat-card">
+            <div class="val">${avgSpo2}%</div>
+            <div class="lbl">Avg SpO₂</div>
+          </div>
+
+          <div class="mt-stat-card">
+            <div class="val">${avgWeight} kg</div>
+            <div class="lbl">Avg Weight</div>
+          </div>
+
+          <div class="mt-stat-card">
+            <div class="val">${male}/${female}</div>
+            <div class="lbl">Male / Female</div>
+          </div>
+
+        </div>
+
+        <div style="
+          margin-top:20px;
+          padding:15px;
+          background:var(--mt-surface);
+          border-radius:12px;
+          border:1px solid var(--mt-border);
+        ">
+          <h4>Latest Patient Record</h4>
+
+          <p><strong>Name:</strong>
+          ${latest.name || '-'}</p>
+
+          <p><strong>Medicine:</strong>
+          ${latest.medicine_name || '-'}</p>
+
+          <p><strong>Blood Pressure:</strong>
+          ${latest.blood_pressure || '-'}</p>
+
+          <p><strong>Heart Rate:</strong>
+          ${latest.heart_rate || '-'}</p>
+
+          <p><strong>Blood Sugar:</strong>
+          ${latest.blood_sugar || '-'}</p>
+
+        </div>
+
+        <div style="margin-top:20px;">
+          <h4>Heart Rate Trend</h4>
+          <canvas id="mt-chart-hr"></canvas>
+        </div>
+
+      `;
+
+      loadScript(
+        'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js',
+        () => {
+
+          new Chart(
+            document.getElementById('mt-chart-hr'),
+            {
+              type: 'line',
+              data: {
+                labels: records.map(
+                  (_, i) => 'Record ' + (i + 1)
+                ),
+                datasets: [{
+                  label: 'Heart Rate',
+                  data: hrTrend,
+                  borderColor: '#06b6d4',
+                  backgroundColor: 'rgba(6,182,212,.1)',
+                  tension: 0.4,
+                  fill: true
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: true
+              }
+            }
+          );
+
+        }
+      );
+
+    })
+    .catch(err => {
+
+      document.getElementById('mt-analytics-content').innerHTML =
+      `
+      <p style="color:red;">
+      Failed to load analytics.<br>
+      ${err.message}
+      </p>
+      `;
+
     });
-    document.getElementById('mt-log-save').addEventListener('click', () => {
-      const m = { bp: document.getElementById('mt-log-bp').value || metrics.bp, hr: document.getElementById('mt-log-hr').value || metrics.hr, sugar: document.getElementById('mt-log-sugar').value || metrics.sugar, spo2: document.getElementById('mt-log-spo2').value || metrics.spo2 };
-      localStorage.setItem('mt_metrics', JSON.stringify(m));
-      const h = JSON.parse(localStorage.getItem('mt_hr_history') || '[72,75,71,74,73,76,72]');
-      if (m.hr) { h.push(parseInt(m.hr)); if (h.length > 7) h.shift(); localStorage.setItem('mt_hr_history', JSON.stringify(h)); }
-      alert(' Vitals saved successfully!');
-    });
-  }
+
+}
 
   // 4. Drug Interaction Checker ──────────────────────────────────────
   function interactions() {
@@ -394,73 +527,7 @@
     });
   }
 
-  // 5. Adherence Tracker ────────────────────────────────────────────
-  function adherence() {
-    const data = JSON.parse(localStorage.getItem('mt_adherence') || '{"streak":7,"daily":85,"weekly":78,"monthly":82,"badges":["🥇 First Week","🔥 7-Day Streak"]}');
-    openModal('🏆 Medicine Adherence', `
-      <div style="text-align:center;padding:10px 0 20px;">
-        <div style="font-size:64px;font-weight:900;color:var(--mt-accent);">${data.streak}</div>
-        <div style="color:var(--mt-muted);font-size:14px;">day streak 🔥</div>
-      </div>
-      <div class="mt-stat-grid">
-        <div class="mt-stat-card"><div class="val">${data.daily}%</div><div class="lbl">Today</div><div class="mt-progress"><div class="mt-progress-bar" style="width:${data.daily}%"></div></div></div>
-        <div class="mt-stat-card"><div class="val">${data.weekly}%</div><div class="lbl">This Week</div><div class="mt-progress"><div class="mt-progress-bar" style="width:${data.weekly}%"></div></div></div>
-        <div class="mt-stat-card"><div class="val">${data.monthly}%</div><div class="lbl">This Month</div><div class="mt-progress"><div class="mt-progress-bar" style="width:${data.monthly}%;background:var(--mt-success);"></div></div></div>
-        <div class="mt-stat-card"><div class="val">${data.badges.length}</div><div class="lbl">Badges Earned</div></div>
-      </div>
-      <p style="font-size:14px;font-weight:700;color:var(--mt-text);margin:20px 0 10px;">🏅 Achievements</p>
-      ${data.badges.map(b => `<div class="mt-achievement"><div class="badge-icon">${b.split(' ')[0]}</div><div class="badge-info"><div class="title">${b.substring(2)}</div><div class="desc">Achievement unlocked!</div></div></div>`).join('')}
-      <button class="mt-btn mt-btn-primary" style="margin-top:18px;width:100%;" id="mt-mark-taken">✅ Mark Today's Dose as Taken</button>
-    `);
-    document.getElementById('mt-mark-taken').addEventListener('click', () => {
-      data.streak++;
-      data.daily = 100;
-      if (data.streak % 7 === 0) data.badges.push(`🔥 ${data.streak}-Day Streak`);
-      localStorage.setItem('mt_adherence', JSON.stringify(data));
-      alert(`Dose marked! Streak: ${data.streak} days!`);
-      adherence();
-    });
-  }
-
-  // 6. Stock Predictor ──────────────────────────────────────────────
-  function stock() {
-    const medicines = JSON.parse(localStorage.getItem('mt_stock') || '[{"name":"Metformin 500mg","total":30,"taken":18,"freq":2},{"name":"Lisinopril 10mg","total":30,"taken":24,"freq":1},{"name":"Aspirin 75mg","total":60,"taken":45,"freq":1}]');
-    openModal('💊 Medicine Stock Predictor', `
-      ${medicines.map((m, i) => {
-        const rem = m.total - m.taken;
-        const days = Math.floor(rem / m.freq);
-        const pct = Math.round((rem / m.total) * 100);
-        const urgency = days <= 3 ? 'var(--mt-danger)' : days <= 7 ? 'var(--mt-warn)' : 'var(--mt-success)';
-        return `<div style="background:var(--mt-surface);border-radius:12px;border:1px solid var(--mt-border);padding:16px;margin-bottom:12px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <strong style="font-size:14px;color:var(--mt-text);">${m.name}</strong>
-            <span style="color:${urgency};font-size:13px;font-weight:700;">${days} days left</span>
-          </div>
-          <div class="mt-progress"><div class="mt-progress-bar" style="width:${pct}%;background:${urgency};"></div></div>
-          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px;color:var(--mt-muted);">
-            <span>${rem}/${m.total} pills remaining</span>
-            <span>${m.freq}x daily</span>
-          </div>
-          ${days <= 5 ? `<div style="background:rgba(239,68,68,.1);border-radius:8px;padding:8px;margin-top:10px;font-size:12px;color:var(--mt-danger);">⚠️ Low stock! Refill recommended by ${new Date(Date.now()+days*86400000).toDateString()}</div>` : ''}
-        </div>`;
-      }).join('')}
-      <button class="mt-btn mt-btn-primary" style="width:100%;" id="mt-add-stock">➕ Add Medicine to Track</button>
-    `);
-    document.getElementById('mt-add-stock').addEventListener('click', () => {
-      const name = prompt('Medicine name:');
-      const total = parseInt(prompt('Total pills:'));
-      const freq = parseInt(prompt('Doses per day:'));
-      if (name && total && freq) {
-        medicines.push({ name, total, taken: 0, freq });
-        localStorage.setItem('mt_stock', JSON.stringify(medicines));
-        stock();
-      }
-    });
-  }
-
  
-     
-
   // 9. Voice Assistant ──────────────────────────────────────────────
   function voice() {
     openModal('🎙️ Voice Assistant', `
@@ -503,47 +570,7 @@
     recog.onend = () => { listening = false; btn.textContent = '🎙️'; };
   }
 
-  // 10. Backup & Restore ────────────────────────────────────────────
-  function backup() {
-    openModal('Backup & Restore', `
-      <p style="color:var(--mt-muted);font-size:13px;margin-bottom:16px;">Export all your MediTrack data or restore from a previous backup.</p>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <button class="mt-btn mt-btn-primary" id="mt-export-btn"> Export All Data (JSON)</button>
-        <div style="background:var(--mt-surface);border-radius:12px;border:1px solid var(--mt-border);padding:16px;">
-          <p style="font-size:13px;font-weight:700;color:var(--mt-text);margin:0 0 10px;"> Import Backup</p>
-          <input type="file" id="mt-import-file" accept=".json" class="mt-input" style="padding:8px;" />
-          <button class="mt-btn mt-btn-secondary" style="margin-top:10px;" id="mt-import-btn">Restore from File</button>
-        </div>
-        <div id="mt-backup-status"></div>
-      </div>
-      <p style="font-size:12px;color:var(--mt-muted);margin-top:16px;"> Back up regularly to prevent data loss. Your data is stored locally in this browser.</p>
-    `);
-    document.getElementById('mt-export-btn').addEventListener('click', () => {
-      const keys = ['mt_metrics', 'mt_adherence', 'mt_stock', 'mt_appointments', 'mt_hr_history', 'mt_user', 'mt_lang', 'mt_theme'];
-      const data = {};
-      keys.forEach(k => { const v = localStorage.getItem(k); if (v) data[k] = JSON.parse(v); });
-      data._exported = new Date().toISOString();
-      data._version = '2.0';
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = `MediTrack-Backup-${new Date().toISOString().split('T')[0]}.json`; a.click();
-      document.getElementById('mt-backup-status').innerHTML = '<p style="color:var(--mt-success);">Backup exported!</p>';
-    });
-    document.getElementById('mt-import-btn').addEventListener('click', () => {
-      const file = document.getElementById('mt-import-file').files[0];
-      if (!file) { alert('Please select a JSON backup file.'); return; }
-      const reader = new FileReader();
-      reader.onload = e => {
-        try {
-          const data = JSON.parse(e.target.result);
-          Object.keys(data).filter(k => k.startsWith('mt_')).forEach(k => localStorage.setItem(k, JSON.stringify(data[k])));
-          document.getElementById('mt-backup-status').innerHTML = `<p style="color:var(--mt-success);"> Backup restored from ${data._exported ? new Date(data._exported).toLocaleDateString() : 'unknown date'}!</p>`;
-        } catch { document.getElementById('mt-backup-status').innerHTML = '<p style="color:var(--mt-danger);">❌ Invalid backup file.</p>'; }
-      };
-      reader.readAsText(file);
-    });
-  }
-
+ 
   // 11. Settings ────────────────────────────────────────────────────
   function settings() {
     openModal('⚙️ Settings', `
