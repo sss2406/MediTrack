@@ -1,19 +1,17 @@
-// dashboard.js — MediTrack Dashboard (CORS-fixed version)
-
+// NEW — corsproxy.io + safe JSON parse
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4MGPFA_qdPuFMyn04_524T_rXId6KebEKIvfWFUXc-wyU-r4jObBQS960T7HcrxY9/exec";
 
-// Route through allorigins.win — a free CORS proxy that wraps any URL
-function getProxiedURL(url) {
-  return "https://api.allorigins.win/get?url=" + encodeURIComponent(url);
-}
-
 async function fetchSheetData() {
-  const res = await fetch(getProxiedURL(SCRIPT_URL));
-  const wrapper = await res.json();         // allorigins wraps response in { contents: "..." }
-  const records = JSON.parse(wrapper.contents);
-  return records;
+  const proxyURL = "https://corsproxy.io/?" + encodeURIComponent(SCRIPT_URL);
+  const res = await fetch(proxyURL);
+  if (!res.ok) throw new Error("Proxy request failed: " + res.status);
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    throw new Error("Invalid JSON from server: " + text.slice(0, 100));
+  }
 }
-
 async function loadDashboard() {
   try {
     document.getElementById("loading").innerText = "Loading data...";
