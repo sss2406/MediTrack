@@ -1,168 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<div class="dashboard">
 
-    <script>
-        const session = JSON.parse(localStorage.getItem('mt_session') || 'null');
+<h1>MediTrack Dashboard</h1>
 
-        if (!session || session.expires < Date.now()) {
-            localStorage.removeItem('mt_session');
-            localStorage.removeItem('mt_user');
-            window.location.href = 'auth.html';
-        }
-    </script>
+<div id="stats">
 
-    <title>MediTrack Dashboard</title>
+<p>
+Active Medicines:
+<strong id="activeMeds">0</strong>
+</p>
 
-    <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#06b6d4">
+<p>
+Upcoming Reminders:
+<strong id="todayDoses">0</strong>
+</p>
 
-    <style>
-        :root {
-            --bg: #0f172a;
-            --surface: #1e293b;
-            --card: #243447;
-            --accent: #06b6d4;
-            --accent2: #8b5cf6;
-            --text: #f1f5f9;
-            --muted: #94a3b8;
-            --border: #334155;
-        }
+<p>
+Low Stock Alerts:
+<strong id="lowStock">0</strong>
+</p>
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+</div>
 
-        body {
-            background: var(--bg);
-            background-image:
-                radial-gradient(
-                    ellipse at 20% 50%,
-                    rgba(6, 182, 212, .08) 0%,
-                    transparent 50%
-                ),
-                radial-gradient(
-                    ellipse at 80% 20%,
-                    rgba(139, 92, 246, .08) 0%,
-                    transparent 50%
-                );
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            color: var(--text);
-        }
+<div class="divider"></div>
 
-        .dashboard {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 44px 40px;
-            border-radius: 20px;
-            width: 500px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
-        }
+<button class="sheet-btn"
+onclick="window.location.href='add-record.html'">
+Add Record
+</button>
 
-        .dashboard-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
+<br><br>
 
-        .dashboard h1 {
-            margin-bottom: 12px;
-            font-size: 24px;
-            font-weight: 800;
-            background: linear-gradient(
-                135deg,
-                var(--accent),
-                var(--accent2)
-            );
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+<button class="sheet-btn"
+onclick="window.open('https://docs.google.com/spreadsheets/d/1gqB3-KYs2ca_1yqEoWaLsIZIDODC-1erskSdUJrPE1k/edit')">
+View Data
+</button>
 
-        .dashboard p {
-            font-size: 15px;
-            color: var(--muted);
-            line-height: 1.7;
-            margin-bottom: 8px;
-        }
+<br>
 
-        .divider {
-            height: 1px;
-            background: var(--border);
-            margin: 24px 0;
-        }
+<a href="index.html"
+class="back-btn">
+← Back to Home
+</a>
 
-        .sheet-btn {
-            display: inline-block;
-            padding: 13px 32px;
-            font-size: 15px;
-            font-weight: 700;
-            background: linear-gradient(
-                135deg,
-                var(--accent),
-                var(--accent2)
-            );
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.2s;
-            margin-top: 24px;
-        }
+</div>
 
-        .sheet-btn:hover {
-            filter: brightness(1.1);
-            transform: translateY(-2px);
-        }
-
-        .back-btn {
-            display: inline-block;
-            margin-top: 14px;
-            font-size: 13px;
-            color: var(--muted);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .back-btn:hover {
-            color: var(--accent);
-        }
-    </style>
-</head>
-
-<body>
-    <div class="dashboard">
-        <div class="dashboard-icon">📊</div>
-
-        <h1>MediTrack Dashboard</h1>
-
-        <p>
-            Your patient records submitted through MediTrack are
-            securely stored in Google Sheets.
-        </p>
-
-        <div class="divider"></div>
-
-        <button
-            class="sheet-btn"
-            onclick="window.location.href='https://docs.google.com/spreadsheets/d/1gqB3-KYs2ca_1yqEoWaLsIZIDODC-1erskSdUJrPE1k/edit#gid=0'">
-            Open Google Sheets
-        </button>
-
-        <br>
-
-        <a href="index.html" class="back-btn">
-            ← Back to Home
-        </a>
-    </div>
-</body>
-</html>
+<script src="dashboard.js"></script>
