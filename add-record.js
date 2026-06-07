@@ -1,3 +1,4 @@
+console.log("ADD RECORD JS LOADED");
 document.addEventListener("DOMContentLoaded", () => {
 
   const form = document.getElementById("patientForm");
