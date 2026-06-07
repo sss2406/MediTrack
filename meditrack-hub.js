@@ -532,9 +532,19 @@ function openFeature(name) {
       <div style="background:var(--mt-surface);border-radius:12px;border:1px solid var(--mt-border);padding:14px;margin-bottom:14px;">
         <p id="mt-voice-text" style="color:var(--mt-text);font-size:16px;min-height:28px;text-align:center;margin:0;font-style:italic;">…</p>
       </div>
-      <p style="font-size:13px;font-weight:700;color:var(--mt-text);margin-bottom:8px;">💬 Available Commands</p>
-      ${[['open ai assistant','Opens AI chat'],['show analytics','Opens health analytics'],['check interactions','Drug interaction checker'],['[  ['open ai assistant','Opens AI chat'],  ['show analytics','Opens health analytics'],  ['check interactions','Drug interaction checker'],  ['emergency sos','Activates SOS'],  ['toggle theme','Switch dark/light mode'] ,['emergency sos','Activates SOS'],['toggle theme','Switch dark/light mode']].map(([cmd,desc])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--mt-border);font-size:13px;"><span style="color:var(--mt-accent);font-family:monospace;">"${cmd}"</span><span style="color:var(--mt-muted);">${desc}</span></div>`).join('')}
-    `);
+     <p style="font-size:13px;font-weight:700;color:var(--mt-text);margin-bottom:8px;">💬 Available Commands</p>
+${[
+  ['open ai assistant','Opens AI chat'],
+  ['show analytics','Opens health analytics'],
+  ['check interactions','Drug interaction checker'],
+  ['emergency sos','Activates SOS'],
+  ['toggle theme','Switch dark/light mode']
+].map(([cmd,desc]) => `
+  <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--mt-border);font-size:13px;">
+    <span style="color:var(--mt-accent);font-family:monospace;">"${cmd}"</span>
+    <span style="color:var(--mt-muted);">${desc}</span>
+  </div>
+`).join('')}
     const btn = document.getElementById('mt-voice-btn');
     const statusEl = document.getElementById('mt-voice-status');
     const textEl = document.getElementById('mt-voice-text');
@@ -552,12 +562,12 @@ function openFeature(name) {
       const transcript = Array.from(e.results).map(r => r[0].transcript).join('').toLowerCase();
       textEl.textContent = transcript;
       if (e.results[e.results.length - 1].isFinal) {
-      const cmds = {
- 'open ai assistant': () => { closeModal(); ai(); },
- 'show analytics': () => { closeModal(); analytics(); },
- 'check interactions': () => { closeModal(); interactions(); },
- 'emergency sos': () => { closeModal(); sos(); },
- 'toggle theme': toggleTheme
+const cmds = {
+  'open ai assistant': () => { closeModal(); ai(); },
+  'show analytics': () => { closeModal(); analytics(); },
+  'check interactions': () => { closeModal(); interactions(); },
+  'emergency sos': () => { closeModal(); sos(); },
+  'toggle theme': toggleTheme
 };
         if (match) { cmds[match](); statusEl.textContent = `Command recognized: "${match}"`; }
         else { statusEl.textContent = 'Command not recognized. Try again.'; }
