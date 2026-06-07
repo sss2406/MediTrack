@@ -299,6 +299,9 @@
   }
 
   // 3. Analytics Dashboard ──────────────────────────────────────────
+  const SHEET_URL = "https://script.google.com/macros/s/AKfycbz4MGPFA_qdPuFMyn04_524T_rXId6KebEKIvfWFUXc-wyU-r4jObBQS960T7HcrxY9/exec";
+  const PROXY_URL = "https://api.allorigins.win/get?url=";
+
   function analytics() {
     openModal('📊 Real Health Analytics', `
       <div id="mt-analytics-content">
@@ -306,8 +309,9 @@
       </div>
     `);
 
-    fetch("https://script.google.com/macros/s/AKfycbz4MGPFA_qdPuFMyn04_524T_rXId6KebEKIvfWFUXc-wyU-r4jObBQS960T7HcrxY9/exec")
+    fetch(PROXY_URL + encodeURIComponent(SHEET_URL))
       .then(res => res.json())
+      .then(wrapper => JSON.parse(wrapper.contents))
       .then(records => {
         if (!records || !records.length) {
           document.getElementById('mt-analytics-content').innerHTML = "<p>No patient records found.</p>";
