@@ -1,18 +1,25 @@
+// dashboard.js — MediTrack Dashboard (direct, no proxy)
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2jT6n1A7vnyOHCoERZaWd-hjMjYxgS0Hr0dggK1VAoeRHX03Ks4a3cCO74PJC3Ioi/exec";
+
 async function fetchSheetData() {
   const res = await fetch(SCRIPT_URL, { redirect: "follow" });
   if (!res.ok) throw new Error("Request failed: " + res.status);
   const text = await res.text();
-  try { return JSON.parse(text); }
-  catch(e) { throw new Error("Bad JSON: " + text.slice(0, 100)); }
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    throw new Error("Bad JSON: " + text.slice(0, 100));
+  }
 }
+
 async function loadDashboard() {
   try {
     document.getElementById("loading").innerText = "Loading data...";
     const records = await fetchSheetData();
     if (!records || !records.length) {
       document.getElementById("loading").innerText = "No records found yet.";
-      document.getElementById("medicineList").innerHTML = "<div style='color:var(--muted);font-size:14px;padding:10px 0;'>No patient records yet. Add one to get started.</div>";
+      document.getElementById("medicineList").innerHTML =
+        "<div style='color:var(--muted);font-size:14px;padding:10px 0;'>No patient records yet. Add one to get started.</div>";
       return;
     }
     const latest = records[records.length - 1];
