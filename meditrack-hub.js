@@ -145,25 +145,10 @@
           <div class="mt-label">Drug Check</div>
           <div class="mt-desc">Interaction alert</div>
         </div>
-        <div class="mt-tile" data-feature="adherence">
-          <div class="mt-icon">🏆</div>
-          <div class="mt-label">Adherence</div>
-          <div class="mt-desc">Streaks & badges</div>
-        </div>
-        <div class="mt-tile" data-feature="stock">
-          <div class="mt-icon">💊</div>
-          <div class="mt-label">Stock</div>
-          <div class="mt-desc">Refill predictor</div>
-        </div>
         <div class="mt-tile" data-feature="voice">
           <div class="mt-icon">🎙️</div>
           <div class="mt-label">${MT.t('voice')}</div>
           <div class="mt-desc">Voice commands</div>
-        </div>
-        <div class="mt-tile" data-feature="backup">
-          <div class="mt-icon">☁️</div>
-          <div class="mt-label">Backup</div>
-          <div class="mt-desc">Export / import</div>
         </div>
         <div class="mt-tile" data-feature="settings">
           <div class="mt-icon">⚙️</div>
@@ -212,11 +197,19 @@
   }
 
   // ── FEATURES ───────────────────────────────────────────────────────
-  function openFeature(name) {
-    const features = { ai, ocr, analytics, interactions, adherence, stock, voice, backup, settings, sos };
-    if (features[name]) features[name]();
-  }
+function openFeature(name) {
+  const features = {
+    ai,
+    ocr,
+    analytics,
+    interactions,
+    voice,
+    settings,
+    sos
+  };
 
+  if (features[name]) features[name]();
+}
   // 1. AI Medicine Assistant ──────────────────────────────────────────
   function ai() {
     openModal('🤖 AI Medicine Assistant', `
@@ -540,7 +533,7 @@
         <p id="mt-voice-text" style="color:var(--mt-text);font-size:16px;min-height:28px;text-align:center;margin:0;font-style:italic;">…</p>
       </div>
       <p style="font-size:13px;font-weight:700;color:var(--mt-text);margin-bottom:8px;">💬 Available Commands</p>
-      ${[['open ai assistant','Opens AI chat'],['show analytics','Opens health analytics'],['check interactions','Drug interaction checker'],['show adherence','Adherence tracker'],['book appointment','Appointment booking'],['generate report','PDF report'],['emergency sos','Activates SOS'],['toggle theme','Switch dark/light mode']].map(([cmd,desc])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--mt-border);font-size:13px;"><span style="color:var(--mt-accent);font-family:monospace;">"${cmd}"</span><span style="color:var(--mt-muted);">${desc}</span></div>`).join('')}
+      ${[['open ai assistant','Opens AI chat'],['show analytics','Opens health analytics'],['check interactions','Drug interaction checker'],['[  ['open ai assistant','Opens AI chat'],  ['show analytics','Opens health analytics'],  ['check interactions','Drug interaction checker'],  ['emergency sos','Activates SOS'],  ['toggle theme','Switch dark/light mode'] ,['emergency sos','Activates SOS'],['toggle theme','Switch dark/light mode']].map(([cmd,desc])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--mt-border);font-size:13px;"><span style="color:var(--mt-accent);font-family:monospace;">"${cmd}"</span><span style="color:var(--mt-muted);">${desc}</span></div>`).join('')}
     `);
     const btn = document.getElementById('mt-voice-btn');
     const statusEl = document.getElementById('mt-voice-status');
@@ -559,8 +552,13 @@
       const transcript = Array.from(e.results).map(r => r[0].transcript).join('').toLowerCase();
       textEl.textContent = transcript;
       if (e.results[e.results.length - 1].isFinal) {
-        const cmds = { 'open ai assistant': () => { closeModal(); ai(); }, 'show analytics': () => { closeModal(); analytics(); }, 'check interactions': () => { closeModal(); interactions(); }, 'show adherence': () => { closeModal(); adherence(); }, 'book appointment': () => { closeModal(); appointment(); }, 'generate report': () => { closeModal(); report(); }, 'emergency sos': () => { closeModal(); sos(); }, 'toggle theme': toggleTheme };
-        const match = Object.keys(cmds).find(k => transcript.includes(k));
+      const cmds = {
+ 'open ai assistant': () => { closeModal(); ai(); },
+ 'show analytics': () => { closeModal(); analytics(); },
+ 'check interactions': () => { closeModal(); interactions(); },
+ 'emergency sos': () => { closeModal(); sos(); },
+ 'toggle theme': toggleTheme
+};
         if (match) { cmds[match](); statusEl.textContent = `Command recognized: "${match}"`; }
         else { statusEl.textContent = 'Command not recognized. Try again.'; }
         listening = false; btn.textContent = '🎙️';
@@ -587,13 +585,18 @@
     document.getElementById('mt-light-btn').addEventListener('click', () => { MT.theme = 'light'; localStorage.setItem('mt_theme', 'light'); document.body.classList.add('mt-light-mode'); });
     document.getElementById('mt-save-key').addEventListener('click', () => { localStorage.setItem('mt_gemini_key', document.getElementById('mt-gemini-key').value.trim()); alert('API key saved!'); });
     document.getElementById('mt-save-emer').addEventListener('click', () => { localStorage.setItem('mt_emergency', JSON.stringify({ name: document.getElementById('mt-emer-name').value, phone: document.getElementById('mt-emer-phone').value })); alert('Emergency contact saved!'); });
-    document.getElementById('mt-clear-btn').addEventListener('click', () => { if (confirm('⚠️ This will delete ALL MediTrack data. Continue?')) { ['mt_metrics','mt_adherence','mt_stock','mt_appointments','mt_hr_history','mt_user','mt_gemini_key','mt_emergency'].forEach(k => localStorage.removeItem(k)); closeModal(); alert(' All data cleared.'); } });
+    document.getElementById('mt-clear-btn').addEventListener('click', () => { if (confirm('⚠️ This will delete ALL MediTrack data. Continue?')) { [[
+ 'mt_metrics',
+ 'mt_user',
+ 'mt_gemini_key',
+ 'mt_emergency'
+]].forEach(k => localStorage.removeItem(k)); closeModal(); alert(' All data cleared.'); } });
   }
 
   // 12. SOS Emergency ───────────────────────────────────────────────
   function sos() {
     const em = JSON.parse(localStorage.getItem('mt_emergency') || '{}');
-    const meds = JSON.parse(localStorage.getItem('mt_stock') || '[]').map(m => m.name).join(', ') || 'None recorded';
+   const meds = 'Not Available';
     const metrics = JSON.parse(localStorage.getItem('mt_metrics') || '{}');
     let countdown = 5;
     openModal('🆘 Emergency SOS', `
