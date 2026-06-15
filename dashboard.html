@@ -1,296 +1,328 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#06b6d4" />
+  <title>MediTrack Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #0f172a 100%);
+      min-height: 100vh; color: #e2e8f0;
+    }
 
-<script>
-const session = JSON.parse(localStorage.getItem('mt_session') || 'null');
+    nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 28px; background: rgba(6,182,212,0.08);
+      border-bottom: 1px solid rgba(6,182,212,0.2); backdrop-filter: blur(10px);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 8px; font-size: 1.2rem; font-weight: 700; color: #06b6d4; text-decoration: none; }
+    .nav-links { display: flex; gap: 10px; }
+    .nav-links a {
+      padding: 7px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+      text-decoration: none; transition: all 0.2s; border: 1.5px solid transparent;
+    }
+    .btn-outline { border-color: #06b6d4 !important; color: #06b6d4; }
+    .btn-outline:hover { background: #06b6d4; color: #0f172a; }
+    .btn-solid { background: #06b6d4; color: #0f172a; }
+    .btn-solid:hover { background: #0891b2; }
 
-if (!session || session.expires < Date.now()) {
-  localStorage.removeItem('mt_session');
-  localStorage.removeItem('mt_user');
-  window.location.href = 'auth.html';
-}
-</script>
+    .page-wrapper { max-width: 1100px; margin: 0 auto; padding: 36px 20px 60px; }
+    .page-title { font-size: 2rem; font-weight: 800; margin-bottom: 6px; }
+    .page-sub { color: #64748b; font-size: 0.9rem; margin-bottom: 28px; }
 
-<title>MediTrack Dashboard</title>
+    /* Stats row */
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 28px; }
+    .stat-card {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; padding: 18px; text-align: center;
+    }
+    .stat-card .num { font-size: 2rem; font-weight: 800; color: #06b6d4; }
+    .stat-card .lbl { font-size: 0.78rem; color: #64748b; margin-top: 4px; }
 
-<link rel="manifest" href="./manifest.json" />
-<meta name="theme-color" content="#06b6d4">
+    /* Toolbar */
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; }
+    .search-box {
+      flex: 1; min-width: 200px; background: rgba(255,255,255,0.06);
+      border: 1.5px solid rgba(255,255,255,0.1); border-radius: 10px;
+      padding: 10px 14px; color: #e2e8f0; font-size: 0.9rem; font-family: inherit;
+    }
+    .search-box:focus { outline: none; border-color: #06b6d4; }
+    .filter-select {
+      background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 10px 14px; color: #e2e8f0; font-size: 0.85rem;
+      font-family: inherit; cursor: pointer;
+    }
+    .filter-select:focus { outline: none; border-color: #06b6d4; }
+    .filter-select option { background: #1e3a5f; }
+    .clear-btn {
+      background: rgba(239,68,68,0.1); border: 1.5px solid rgba(239,68,68,0.3);
+      color: #f87171; border-radius: 10px; padding: 10px 16px; font-size: 0.82rem;
+      cursor: pointer; transition: all 0.2s; font-family: inherit;
+    }
+    .clear-btn:hover { background: #ef4444; color: white; }
 
-<style>
+    /* Record cards */
+    #records-grid { display: flex; flex-direction: column; gap: 16px; }
 
-:root{
-  --bg:#0f172a;
-  --surface:#1e293b;
-  --card:#243447;
-  --accent:#06b6d4;
-  --accent2:#8b5cf6;
-  --text:#f1f5f9;
-  --muted:#94a3b8;
-  --border:#334155;
-  --success:#10b981;
-  --danger:#ef4444;
-}
+    .record-card {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 18px; overflow: hidden; transition: all 0.25s;
+    }
+    .record-card:hover { border-color: rgba(6,182,212,0.4); transform: translateY(-2px); }
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
+    .record-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 18px 22px; cursor: pointer; user-select: none;
+    }
+    .record-header:hover { background: rgba(6,182,212,0.04); }
+    .rh-left { display: flex; align-items: center; gap: 14px; }
+    .avatar {
+      width: 46px; height: 46px; border-radius: 12px;
+      background: linear-gradient(135deg, #06b6d4, #6366f1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 800; color: white;
+    }
+    .rh-name { font-size: 1.05rem; font-weight: 700; color: #e2e8f0; }
+    .rh-meta { font-size: 0.8rem; color: #64748b; margin-top: 2px; }
+    .rh-right { display: flex; align-items: center; gap: 10px; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 600; }
+    .badge-blue { background: rgba(6,182,212,0.15); color: #06b6d4; border: 1px solid rgba(6,182,212,0.3); }
+    .badge-green { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+    .badge-orange { background: rgba(249,115,22,0.15); color: #fb923c; border: 1px solid rgba(249,115,22,0.3); }
+    .badge-purple { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+    .chevron { font-size: 0.9rem; color: #64748b; transition: transform 0.25s; }
+    .chevron.open { transform: rotate(180deg); }
 
-body{
-  background:var(--bg);
-  background-image:
-    radial-gradient(
-      ellipse at 20% 50%,
-      rgba(6,182,212,.08) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      ellipse at 80% 20%,
-      rgba(139,92,246,.08) 0%,
-      transparent 50%
-    );
+    .record-body { display: none; padding: 0 22px 20px; }
+    .record-body.open { display: block; }
 
-  color:var(--text);
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+    .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 4px; }
+    .detail-item { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 12px; }
+    .detail-item .d-lbl { font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .detail-item .d-val { font-size: 0.92rem; color: #e2e8f0; font-weight: 500; }
 
-  min-height:100vh;
-  padding:30px;
-}
+    .section-head { font-size: 0.75rem; font-weight: 700; color: #06b6d4; text-transform: uppercase; letter-spacing: 0.07em; margin: 16px 0 10px; }
 
-.header{
-  text-align:center;
-  margin-bottom:30px;
-}
+    .reminders-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .rem-chip {
+      background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.25);
+      border-radius: 10px; padding: 8px 14px;
+      font-size: 0.82rem; color: #e2e8f0;
+    }
+    .rem-chip .rc-name { font-weight: 700; color: #06b6d4; }
+    .rem-chip .rc-meta { color: #64748b; font-size: 0.76rem; margin-top: 2px; }
 
-.header h1{
-  background:
-  linear-gradient(
-    135deg,
-    var(--accent),
-    var(--accent2)
-  );
+    .del-btn {
+      background: rgba(239,68,68,0.1); border: 1.5px solid rgba(239,68,68,0.3);
+      color: #f87171; border-radius: 8px; padding: 7px 14px; font-size: 0.8rem;
+      cursor: pointer; transition: all 0.2s; font-family: inherit; margin-top: 14px;
+    }
+    .del-btn:hover { background: #ef4444; color: white; }
 
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-
-  font-size:34px;
-}
-
-.header p{
-  color:var(--muted);
-  margin-top:10px;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:
-    repeat(auto-fit,minmax(250px,1fr));
-
-  gap:20px;
-}
-
-.card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:18px;
-  padding:20px;
-}
-
-.card h3{
-  margin-bottom:15px;
-  color:var(--accent);
-}
-
-.value{
-  font-size:32px;
-  font-weight:700;
-}
-
-.small{
-  color:var(--muted);
-  margin-top:8px;
-}
-
-.actions{
-  margin-top:30px;
-
-  display:flex;
-  flex-wrap:wrap;
-
-  gap:15px;
-}
-
-.btn{
-  flex:1;
-
-  text-align:center;
-
-  padding:14px;
-
-  border:none;
-
-  border-radius:12px;
-
-  text-decoration:none;
-
-  font-weight:700;
-
-  cursor:pointer;
-}
-
-.primary{
-  background:
-  linear-gradient(
-    135deg,
-    var(--accent),
-    var(--accent2)
-  );
-
-  color:white;
-}
-
-.secondary{
-  background:var(--card);
-  color:var(--text);
-  border:1px solid var(--border);
-}
-
-.list{
-  margin-top:10px;
-}
-
-.list div{
-  padding:8px 0;
-  border-bottom:1px solid var(--border);
-}
-
-.loading{
-  text-align:center;
-  color:var(--muted);
-  margin-top:30px;
-}
-
-</style>
+    /* Empty state */
+    .empty-state {
+      text-align: center; padding: 80px 20px;
+      background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1);
+      border-radius: 20px;
+    }
+    .empty-state .e-icon { font-size: 3rem; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 1.2rem; color: #94a3b8; margin-bottom: 8px; }
+    .empty-state p { color: #475569; font-size: 0.88rem; margin-bottom: 24px; }
+    .empty-state a {
+      display: inline-block; background: #06b6d4; color: #0f172a;
+      font-weight: 700; padding: 12px 28px; border-radius: 10px;
+      text-decoration: none; transition: all 0.2s;
+    }
+    .empty-state a:hover { background: #0891b2; }
+  </style>
 </head>
-
 <body>
 
-<div class="header">
+<nav>
+  <a class="nav-logo" href="index.html">🏥 MediTrack</a>
+  <div class="nav-links">
+    <a href="add-record.html" class="btn-outline">+ Add Record</a>
+    <a href="index.html" class="btn-solid">Home</a>
+  </div>
+</nav>
 
-<h1>MediTrack Dashboard</h1>
+<div class="page-wrapper">
+  <div class="page-title">📊 Dashboard</div>
+  <div class="page-sub">All saved patient records — stored securely on this device.</div>
 
-<p>
-Medication Management & Health Analytics
-</p>
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card"><div class="num" id="s-total">0</div><div class="lbl">Total Records</div></div>
+    <div class="stat-card"><div class="num" id="s-reminders">0</div><div class="lbl">Reminders</div></div>
+    <div class="stat-card"><div class="num" id="s-today">0</div><div class="lbl">Added Today</div></div>
+    <div class="stat-card"><div class="num" id="s-followup">0</div><div class="lbl">Follow-ups</div></div>
+  </div>
 
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <input class="search-box" type="text" placeholder="🔍 Search by name, diagnosis, doctor…" oninput="filterRecords()" id="search-input" />
+    <select class="filter-select" id="gender-filter" onchange="filterRecords()">
+      <option value="">All Genders</option>
+      <option>Male</option><option>Female</option><option>Other</option>
+    </select>
+    <select class="filter-select" id="sort-order" onchange="filterRecords()">
+      <option value="newest">Newest First</option>
+      <option value="oldest">Oldest First</option>
+      <option value="name">By Name A–Z</option>
+    </select>
+    <button class="clear-btn" onclick="clearAllRecords()">🗑 Clear All</button>
+  </div>
+
+  <!-- Records -->
+  <div id="records-grid"></div>
 </div>
 
-<div class="grid">
+<script>
+  function getRecords() { try { return JSON.parse(localStorage.getItem('meditrack_records') || '[]'); } catch { return []; } }
+  function saveRecords(arr) { localStorage.setItem('meditrack_records', JSON.stringify(arr)); }
+  function todayStr() { return new Date().toISOString().slice(0,10); }
 
-<div class="card">
-<h3>Active Medicines</h3>
-<div class="value" id="activeMedicines">0</div>
-<div class="small">
-Currently Active
-</div>
-</div>
+  function refreshStats(records) {
+    const reminders = records.reduce((a, r) => a + (Array.isArray(r.reminders) ? r.reminders.length : 0), 0);
+    const today = records.filter(r => r.savedAt && r.savedAt.startsWith(todayStr())).length;
+    const followups = records.filter(r => r.followUp).length;
+    document.getElementById('s-total').textContent = records.length;
+    document.getElementById('s-reminders').textContent = reminders;
+    document.getElementById('s-today').textContent = today;
+    document.getElementById('s-followup').textContent = followups;
+  }
 
-<div class="card">
-<h3>Today's Reminders</h3>
-<div class="value" id="todayReminders">0</div>
-<div class="small">
-Scheduled Today
-</div>
-</div>
+  function filterRecords() {
+    const search = document.getElementById('search-input').value.toLowerCase();
+    const gender = document.getElementById('gender-filter').value;
+    const sort = document.getElementById('sort-order').value;
+    let records = getRecords();
 
-<div class="card">
-<h3>Low Stock Alerts</h3>
-<div class="value" id="lowStock">0</div>
-<div class="small">
-Needs Refill Soon
-</div>
-</div>
+    if (search) records = records.filter(r =>
+      (r.patientName || '').toLowerCase().includes(search) ||
+      (r.diagnosis || '').toLowerCase().includes(search) ||
+      (r.doctor || '').toLowerCase().includes(search) ||
+      (r.symptoms || '').toLowerCase().includes(search)
+    );
+    if (gender) records = records.filter(r => r.gender === gender);
 
-<div class="card">
-<h3>Latest Weight</h3>
-<div class="value" id="latestWeight">--</div>
-<div class="small">
-kg
-</div>
-</div>
+    if (sort === 'newest') records.sort((a, b) => b.id - a.id);
+    else if (sort === 'oldest') records.sort((a, b) => a.id - b.id);
+    else if (sort === 'name') records.sort((a, b) => (a.patientName || '').localeCompare(b.patientName || ''));
 
-<div class="card">
-<h3>Blood Pressure</h3>
-<div class="value" id="latestBP">--</div>
-<div class="small">
-Latest Reading
-</div>
-</div>
+    renderRecords(records);
+  }
 
-<div class="card">
-<h3>Blood Sugar</h3>
-<div class="value" id="latestSugar">--</div>
-<div class="small">
-Latest Reading
-</div>
-</div>
+  function renderRecords(records) {
+    const grid = document.getElementById('records-grid');
+    refreshStats(getRecords());
 
-</div>
+    if (records.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state">
+          <div class="e-icon">📋</div>
+          <h3>No Records Found</h3>
+          <p>Add a patient record and it will appear here instantly.</p>
+          <a href="add-record.html">+ Add First Record</a>
+        </div>`;
+      return;
+    }
 
-<div class="card" style="margin-top:25px;">
+    grid.innerHTML = records.map((r, idx) => {
+      const initials = (r.patientName || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+      const bmi = (r.height && r.weight) ? (r.weight / ((r.height / 100) ** 2)).toFixed(1) : '—';
+      const date = r.savedAt ? new Date(r.savedAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '—';
 
-<h3>Upcoming Medicines</h3>
+      const remindersHtml = Array.isArray(r.reminders) && r.reminders.length > 0
+        ? `<div class="section-head">💊 Medicine Reminders</div>
+           <div class="reminders-row">
+             ${r.reminders.map(rem => `
+               <div class="rem-chip">
+                 <div class="rc-name">💊 ${rem.medicineName || 'Medicine'}</div>
+                 <div class="rc-meta">
+                   ${rem.dosage ? rem.dosage + ' · ' : ''}
+                   ${rem.frequency || ''} ${rem.time ? '@ ' + rem.time : ''}
+                   ${rem.duration ? '· ' + rem.duration : ''}
+                   ${rem.instructions ? '· ' + rem.instructions : ''}
+                 </div>
+               </div>`).join('')}
+           </div>` : '';
 
-<div
-id="medicineList"
-class="list">
+      return `
+        <div class="record-card" id="card-${r.id}">
+          <div class="record-header" onclick="toggleCard(${r.id})">
+            <div class="rh-left">
+              <div class="avatar">${initials}</div>
+              <div>
+                <div class="rh-name">${r.patientName || '—'}</div>
+                <div class="rh-meta">
+                  ${r.age ? 'Age ' + r.age : ''}
+                  ${r.gender ? ' · ' + r.gender : ''}
+                  ${r.doctor ? ' · Dr. ' + r.doctor : ''}
+                  · ${date}
+                </div>
+              </div>
+            </div>
+            <div class="rh-right">
+              ${r.diagnosis ? `<span class="badge badge-orange">${r.diagnosis.slice(0,20)}${r.diagnosis.length > 20 ? '…' : ''}</span>` : ''}
+              ${r.bloodGroup ? `<span class="badge badge-purple">${r.bloodGroup}</span>` : ''}
+              <span class="badge badge-green">BMI ${bmi}</span>
+              <span class="chevron" id="chev-${r.id}">▼</span>
+            </div>
+          </div>
 
-Loading...
+          <div class="record-body" id="body-${r.id}">
+            <div class="detail-grid">
+              ${r.bp ? `<div class="detail-item"><div class="d-lbl">Blood Pressure</div><div class="d-val">${r.bp}</div></div>` : ''}
+              ${r.heartRate ? `<div class="detail-item"><div class="d-lbl">Heart Rate</div><div class="d-val">${r.heartRate} bpm</div></div>` : ''}
+              ${r.temperature ? `<div class="detail-item"><div class="d-lbl">Temperature</div><div class="d-val">${r.temperature} °C</div></div>` : ''}
+              ${r.height ? `<div class="detail-item"><div class="d-lbl">Height</div><div class="d-val">${r.height} cm</div></div>` : ''}
+              ${r.weight ? `<div class="detail-item"><div class="d-lbl">Weight</div><div class="d-val">${r.weight} kg</div></div>` : ''}
+              ${r.followUp ? `<div class="detail-item"><div class="d-lbl">Follow-up Date</div><div class="d-val">${r.followUp}</div></div>` : ''}
+              ${r.mobile ? `<div class="detail-item"><div class="d-lbl">Mobile</div><div class="d-val">${r.mobile}</div></div>` : ''}
+              ${r.email ? `<div class="detail-item"><div class="d-lbl">Email</div><div class="d-val">${r.email}</div></div>` : ''}
+            </div>
 
-</div>
+            ${r.symptoms ? `<div class="section-head">🤒 Symptoms</div><div style="font-size:0.88rem;color:#94a3b8;line-height:1.6">${r.symptoms}</div>` : ''}
+            ${r.diagnosis ? `<div class="section-head">🩺 Diagnosis</div><div style="font-size:0.88rem;color:#94a3b8;line-height:1.6">${r.diagnosis}</div>` : ''}
+            ${r.medications ? `<div class="section-head">💉 Medications</div><div style="font-size:0.88rem;color:#94a3b8;line-height:1.6">${r.medications}</div>` : ''}
+            ${r.notes ? `<div class="section-head">📝 Notes</div><div style="font-size:0.88rem;color:#94a3b8;line-height:1.6">${r.notes}</div>` : ''}
 
-</div>
+            ${remindersHtml}
 
-<div class="actions">
+            <button class="del-btn" onclick="deleteRecord(${r.id})">🗑 Delete Record</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
 
-<a
-href="add-record.html"
-class="btn primary">
-Add Record
-</a>
+  function toggleCard(id) {
+    const body = document.getElementById('body-' + id);
+    const chev = document.getElementById('chev-' + id);
+    body.classList.toggle('open');
+    chev.classList.toggle('open');
+  }
 
-<button
-class="btn secondary"
-onclick="loadDashboard()">
-Refresh
-</button>
+  function deleteRecord(id) {
+    if (!confirm('Delete this record? This cannot be undone.')) return;
+    const records = getRecords().filter(r => r.id !== id);
+    saveRecords(records);
+    filterRecords();
+  }
 
-<a
-href="index.html"
-class="btn secondary">
-Home
-</a>
+  function clearAllRecords() {
+    if (!confirm('Delete ALL records? This cannot be undone.')) return;
+    localStorage.removeItem('meditrack_records');
+    filterRecords();
+  }
 
-</div>
-
-<div
-id="loading"
-class="loading">
-Loading real data...
-</div>
-
-<script src="dashboard.js"></script>
-<script src="reminder.js"></script>
-  <script src="meditrack-hub.js"></script>
-  
-
+  // Initial load
+  filterRecords();
+</script>
 </body>
 </html>
