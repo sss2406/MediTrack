@@ -1,0 +1,843 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MediTrack — Personal Health Dashboard</title>
+<style>
+  :root {
+    --c-primary: #0f766e;
+    --c-primary-light: #ccfbf1;
+    --c-primary-mid: #14b8a6;
+    --c-surface: #ffffff;
+    --c-bg: #f0fdf9;
+    --c-border: #d1fae5;
+    --c-text: #0f172a;
+    --c-muted: #64748b;
+    --c-danger: #dc2626;
+    --c-danger-bg: #fef2f2;
+    --c-warn: #d97706;
+    --c-warn-bg: #fffbeb;
+    --c-success: #16a34a;
+    --c-success-bg: #f0fdf4;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--c-bg); color: var(--c-text); min-height: 100vh; font-size: 15px; }
+
+  /* NAV */
+  nav { background: var(--c-surface); border-bottom: 1px solid var(--c-border); padding: 0 1.5rem; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
+  .nav-brand { font-size: 1.15rem; font-weight: 700; color: var(--c-primary); letter-spacing: -0.5px; }
+  .nav-brand span { color: var(--c-text); }
+  .nav-links { display: flex; gap: 4px; }
+  .nav-btn { padding: 6px 14px; border-radius: var(--radius-sm); border: none; cursor: pointer; font-size: 13.5px; font-weight: 500; transition: all .15s; background: transparent; color: var(--c-muted); }
+  .nav-btn:hover { background: var(--c-bg); color: var(--c-text); }
+  .nav-btn.active { background: var(--c-primary-light); color: var(--c-primary); }
+  .nav-btn.logout-btn { color: var(--c-danger); }
+  .nav-btn.logout-btn:hover { background: var(--c-danger-bg); }
+  #nav-user-info { font-size: 13px; color: var(--c-muted); display: flex; align-items: center; gap: 8px; }
+  .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--c-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+
+  /* PAGES */
+  .page { display: none; padding: 2rem 1.5rem; max-width: 960px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* LOGIN PAGE */
+  .auth-wrap { min-height: calc(100vh - 57px); display: flex; align-items: center; justify-content: center; padding: 2rem; }
+  .auth-card { background: var(--c-surface); border-radius: var(--radius); border: 1px solid var(--c-border); padding: 2.5rem 2rem; width: 100%; max-width: 400px; box-shadow: var(--shadow-md); }
+  .auth-logo { text-align: center; margin-bottom: 1.75rem; }
+  .auth-logo h1 { font-size: 1.6rem; font-weight: 700; color: var(--c-primary); margin-bottom: 4px; }
+  .auth-logo p { font-size: 13px; color: var(--c-muted); }
+  .auth-tabs { display: flex; border: 1px solid var(--c-border); border-radius: var(--radius-sm); margin-bottom: 1.5rem; overflow: hidden; }
+  .auth-tab { flex: 1; padding: 9px; border: none; cursor: pointer; font-size: 13.5px; font-weight: 500; background: transparent; color: var(--c-muted); transition: all .15s; }
+  .auth-tab.active { background: var(--c-primary); color: #fff; }
+  .field { margin-bottom: 1rem; }
+  .field label { display: block; font-size: 13px; font-weight: 500; color: var(--c-muted); margin-bottom: 5px; }
+  .field input, .field select, .field textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--c-border); border-radius: var(--radius-sm); font-size: 14px; color: var(--c-text); background: var(--c-surface); outline: none; transition: border-color .15s; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--c-primary-mid); box-shadow: 0 0 0 3px rgba(20,184,166,0.1); }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .btn-primary { width: 100%; padding: 10px; background: var(--c-primary); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 14.5px; font-weight: 600; cursor: pointer; transition: background .15s; }
+  .btn-primary:hover { background: #0d6b63; }
+  .auth-msg { font-size: 12.5px; color: var(--c-danger); margin-top: 8px; min-height: 18px; }
+  .auth-success { color: var(--c-success); }
+
+  /* DASHBOARD */
+  .page-header { margin-bottom: 1.75rem; }
+  .page-header h2 { font-size: 1.3rem; font-weight: 700; color: var(--c-text); }
+  .page-header p { font-size: 13.5px; color: var(--c-muted); margin-top: 3px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 1.75rem; }
+  .stat-card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius); padding: 1rem 1.25rem; }
+  .stat-card .label { font-size: 12px; color: var(--c-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+  .stat-card .value { font-size: 1.6rem; font-weight: 700; color: var(--c-primary); }
+  .stat-card .sub { font-size: 12px; color: var(--c-muted); margin-top: 3px; }
+  .card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .card-title { font-size: 14.5px; font-weight: 600; }
+  .badge { font-size: 11.5px; padding: 3px 9px; border-radius: 99px; font-weight: 500; }
+  .badge-teal { background: var(--c-primary-light); color: var(--c-primary); }
+  .badge-warn { background: var(--c-warn-bg); color: var(--c-warn); }
+  .badge-danger { background: var(--c-danger-bg); color: var(--c-danger); }
+  .badge-success { background: var(--c-success-bg); color: var(--c-success); }
+  .records-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .records-table th { text-align: left; padding: 8px 10px; font-size: 12px; font-weight: 600; color: var(--c-muted); border-bottom: 1px solid var(--c-border); text-transform: uppercase; letter-spacing: 0.04em; }
+  .records-table td { padding: 10px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+  .records-table tr:last-child td { border-bottom: none; }
+  .records-table tr:hover td { background: var(--c-bg); }
+  .btn-sm { padding: 4px 10px; border-radius: var(--radius-sm); border: 1px solid var(--c-border); background: var(--c-surface); font-size: 12px; cursor: pointer; color: var(--c-text); font-weight: 500; transition: all .15s; }
+  .btn-sm:hover { background: var(--c-bg); border-color: var(--c-primary-mid); color: var(--c-primary); }
+  .btn-sm.danger { color: var(--c-danger); }
+  .btn-sm.danger:hover { background: var(--c-danger-bg); border-color: var(--c-danger); }
+  .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--c-muted); font-size: 13.5px; }
+  .empty-state .icon { font-size: 2rem; margin-bottom: 8px; opacity: 0.4; }
+
+  /* ADD RECORD FORM */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media(max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+  .form-grid .full { grid-column: 1 / -1; }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--c-primary); text-transform: uppercase; letter-spacing: 0.05em; margin: 1.25rem 0 .75rem; padding-bottom: 6px; border-bottom: 1px solid var(--c-border); }
+  .btn-outline { padding: 9px 20px; border: 1.5px solid var(--c-primary); color: var(--c-primary); background: transparent; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .15s; }
+  .btn-outline:hover { background: var(--c-primary-light); }
+  .file-drop { border: 2px dashed var(--c-border); border-radius: var(--radius); padding: 1.5rem; text-align: center; color: var(--c-muted); font-size: 13.5px; cursor: pointer; transition: border-color .15s; }
+  .file-drop:hover { border-color: var(--c-primary-mid); color: var(--c-primary); }
+  .file-drop input { display: none; }
+  .form-actions { display: flex; gap: 10px; margin-top: 1.5rem; }
+  .form-actions .btn-primary { width: auto; flex: 1; }
+  .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--c-primary); color: #fff; padding: 10px 20px; border-radius: var(--radius-sm); font-size: 13.5px; font-weight: 500; z-index: 9000; opacity: 0; transition: all .3s; pointer-events: none; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* REMINDERS */
+  .reminder-list { display: flex; flex-direction: column; gap: 10px; }
+  .reminder-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--c-border); border-radius: var(--radius-sm); background: var(--c-surface); }
+  .reminder-item .ri-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .reminder-item .ri-info { flex: 1; }
+  .reminder-item .ri-name { font-size: 14px; font-weight: 500; }
+  .reminder-item .ri-meta { font-size: 12px; color: var(--c-muted); margin-top: 2px; }
+  .ri-dot.green { background: var(--c-success); }
+  .ri-dot.amber { background: var(--c-warn); }
+  .ri-dot.red { background: var(--c-danger); }
+  .notif-banner { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius-sm); margin-bottom: 1.25rem; font-size: 13.5px; }
+  .notif-banner.info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
+  .notif-banner.warn { background: var(--c-warn-bg); border: 1px solid #fde68a; color: #92400e; }
+  .notif-banner.success { background: var(--c-success-bg); border: 1px solid #bbf7d0; color: #14532d; }
+  .notif-btn { margin-left: auto; padding: 5px 12px; border-radius: var(--radius-sm); border: 1px solid currentColor; background: transparent; color: inherit; font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0; }
+
+  /* NOTIFICATION MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 500; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--c-surface); border-radius: var(--radius); padding: 1.75rem; width: 90%; max-width: 380px; box-shadow: var(--shadow-md); }
+  .modal h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+  .modal p { font-size: 13.5px; color: var(--c-muted); line-height: 1.6; margin-bottom: 1.25rem; }
+  .modal-actions { display: flex; gap: 8px; }
+  .modal-actions button { flex: 1; padding: 9px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--c-primary); }
+  .modal-actions .allow { background: var(--c-primary); color: #fff; }
+  .modal-actions .deny { background: transparent; color: var(--c-primary); }
+
+  /* REMINDER POPUP (push sim) */
+  .push-popup { display: none; position: fixed; top: 70px; right: 16px; width: 300px; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow-md); z-index: 9999; animation: slidein .3s ease; }
+  .push-popup.show { display: block; }
+  @keyframes slidein { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+  .push-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .push-icon { width: 28px; height: 28px; border-radius: 6px; background: var(--c-primary); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; flex-shrink: 0; }
+  .push-app { font-size: 11px; color: var(--c-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .push-time { font-size: 11px; color: var(--c-muted); margin-left: auto; }
+  .push-title { font-size: 13.5px; font-weight: 600; margin-bottom: 3px; }
+  .push-body { font-size: 12.5px; color: var(--c-muted); }
+  .push-dismiss { position: absolute; top: 10px; right: 10px; width: 20px; height: 20px; border: none; background: none; cursor: pointer; color: var(--c-muted); font-size: 16px; line-height: 1; }
+
+  /* AI DRUG CHECK WIDGET */
+  .drug-fab { position: fixed; bottom: 24px; right: 24px; z-index: 400; }
+  .drug-fab-btn { width: 52px; height: 52px; border-radius: 50%; background: var(--c-primary); color: #fff; border: none; cursor: pointer; font-size: 22px; box-shadow: 0 4px 16px rgba(15,118,110,0.35); display: flex; align-items: center; justify-content: center; transition: transform .15s; }
+  .drug-fab-btn:hover { transform: scale(1.07); }
+  .drug-panel { position: fixed; bottom: 88px; right: 24px; width: 340px; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius); box-shadow: var(--shadow-md); z-index: 400; display: none; flex-direction: column; max-height: 520px; }
+  .drug-panel.open { display: flex; }
+  .drug-panel-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--c-border); }
+  .drug-panel-header h4 { font-size: 14px; font-weight: 700; flex: 1; }
+  .drug-panel-header .close-panel { background: none; border: none; cursor: pointer; color: var(--c-muted); font-size: 18px; }
+  .drug-chat { flex: 1; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .dc-msg { max-width: 90%; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.55; }
+  .dc-msg.bot { background: var(--c-bg); color: var(--c-text); align-self: flex-start; border: 1px solid var(--c-border); }
+  .dc-msg.user { background: var(--c-primary); color: #fff; align-self: flex-end; }
+  .dc-msg.loading { color: var(--c-muted); font-style: italic; background: var(--c-bg); align-self: flex-start; border: 1px solid var(--c-border); }
+  .drug-input-row { display: flex; gap: 6px; padding: 10px 12px; border-top: 1px solid var(--c-border); }
+  .drug-input-row input { flex: 1; padding: 8px 10px; border: 1px solid var(--c-border); border-radius: var(--radius-sm); font-size: 13px; outline: none; }
+  .drug-input-row input:focus { border-color: var(--c-primary-mid); }
+  .drug-input-row button { padding: 8px 14px; background: var(--c-primary); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; }
+  .drug-input-row button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .drug-disclaimer { font-size: 11px; color: var(--c-muted); text-align: center; padding: 0 12px 10px; line-height: 1.4; }
+
+  /* VITALS CHART */
+  .vitals-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; padding: 8px 0; }
+  .vc-bar { flex: 1; background: var(--c-primary-light); border-radius: 3px 3px 0 0; position: relative; transition: height .3s; min-width: 24px; }
+  .vc-bar:hover { background: var(--c-primary-mid); }
+  .vc-label { font-size: 10px; color: var(--c-muted); text-align: center; margin-top: 4px; }
+  .chart-wrap { margin-bottom: .5rem; }
+
+  /* RECORD DETAIL MODAL */
+  .detail-modal { max-width: 540px; max-height: 80vh; overflow-y: auto; }
+  .detail-row { display: flex; padding: 8px 0; border-bottom: 1px solid #f1f5f9; gap: 12px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-key { font-size: 12.5px; color: var(--c-muted); font-weight: 500; width: 140px; flex-shrink: 0; }
+  .detail-val { font-size: 13px; color: var(--c-text); }
+
+  /* Responsive nav */
+  @media(max-width: 500px) {
+    .nav-btn { padding: 6px 8px; font-size: 12px; }
+    nav { padding: 0 .75rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav" style="display:none">
+  <div class="nav-brand">Medi<span>Track</span></div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <div class="nav-links">
+      <button class="nav-btn active" onclick="showPage('dashboard')">Dashboard</button>
+      <button class="nav-btn" onclick="showPage('add-record')">Add Record</button>
+      <button class="nav-btn" onclick="showPage('reminders')">Reminders</button>
+    </div>
+    <div id="nav-user-info">
+      <div class="avatar" id="nav-avatar">--</div>
+      <button class="nav-btn logout-btn" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<!-- LOGIN/REGISTER PAGE -->
+<div id="page-auth" class="page active" style="padding:0;">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <h1>MediTrack</h1>
+        <p>Personal health records and medication management</p>
+      </div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">Sign in</button>
+        <button class="auth-tab" onclick="switchAuthTab('register')">Create account</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="form-login">
+        <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com" /></div>
+        <div class="field"><label>Password</label><input type="password" id="login-pass" placeholder="Enter password" /></div>
+        <div id="login-msg" class="auth-msg"></div>
+        <button class="btn-primary" style="margin-top:12px" onclick="doLogin()">Sign in</button>
+        <p style="font-size:12px;color:var(--c-muted);text-align:center;margin-top:10px;">Demo: <strong>demo@meditrack.com</strong> / <strong>demo1234</strong></p>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div id="form-register" style="display:none">
+        <div class="field"><label>Full name</label><input type="text" id="reg-name" placeholder="Your name" /></div>
+        <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com" /></div>
+        <div class="field"><label>Password</label><input type="password" id="reg-pass" placeholder="Minimum 8 characters" /></div>
+        <div id="reg-msg" class="auth-msg"></div>
+        <button class="btn-primary" style="margin-top:12px" onclick="doRegister()">Create account</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div id="page-dashboard" class="page" style="display:none">
+  <div class="page-header">
+    <h2 id="dash-greeting">Good morning</h2>
+    <p>Here is your health summary</p>
+  </div>
+
+  <div class="stats-grid" id="stats-grid">
+    <div class="stat-card"><div class="label">Total records</div><div class="value" id="stat-records">0</div><div class="sub">patient entries</div></div>
+    <div class="stat-card"><div class="label">Active medications</div><div class="value" id="stat-meds">0</div><div class="sub">current reminders</div></div>
+    <div class="stat-card"><div class="label">Follow-ups due</div><div class="value" id="stat-followups">0</div><div class="sub">upcoming dates</div></div>
+    <div class="stat-card"><div class="label">Last entry</div><div class="value" style="font-size:1rem;padding-top:4px" id="stat-last">—</div><div class="sub">most recent record</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Recent records</span>
+      <button class="btn-sm" onclick="showPage('add-record')">+ Add record</button>
+    </div>
+    <div id="records-container">
+      <div class="empty-state"><div class="icon">&#128196;</div><div>No records yet — add your first health record to get started.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Today's reminders</span><span class="badge badge-teal" id="reminder-count-badge">0 active</span></div>
+    <div id="dash-reminders"><div class="empty-state" style="padding:1rem 0"><div>No reminders set. Go to the Reminders tab to add medications.</div></div></div>
+  </div>
+</div>
+
+<!-- ADD RECORD PAGE -->
+<div id="page-add-record" class="page" style="display:none">
+  <div class="page-header">
+    <h2>Add patient record</h2>
+    <p>Complete as many fields as available for accurate tracking</p>
+  </div>
+  <div class="card">
+    <div class="section-title">Patient information</div>
+    <div class="form-grid">
+      <div class="field"><label>Patient name *</label><input type="text" id="f-name" placeholder="Full name" /></div>
+      <div class="field"><label>Age *</label><input type="number" id="f-age" placeholder="Years" min="0" max="120" /></div>
+      <div class="field"><label>Gender</label><select id="f-gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+      <div class="field"><label>Mobile number</label><input type="tel" id="f-mobile" placeholder="+91 98765 43210" /></div>
+      <div class="field"><label>Email</label><input type="email" id="f-email" placeholder="patient@example.com" /></div>
+      <div class="field"><label>Attending doctor</label><input type="text" id="f-doctor" placeholder="Dr. Name" /></div>
+    </div>
+
+    <div class="section-title">Vitals</div>
+    <div class="form-grid">
+      <div class="field"><label>Height (cm)</label><input type="number" id="f-height" placeholder="e.g. 170" /></div>
+      <div class="field"><label>Weight (kg)</label><input type="number" id="f-weight" placeholder="e.g. 68" /></div>
+      <div class="field"><label>Blood pressure</label><input type="text" id="f-bp" placeholder="e.g. 120/80" /></div>
+      <div class="field"><label>Heart rate (bpm)</label><input type="number" id="f-hr" placeholder="e.g. 72" /></div>
+      <div class="field"><label>Temperature (°C)</label><input type="number" id="f-temp" placeholder="e.g. 37.2" step="0.1" /></div>
+      <div class="field"><label>Follow-up date</label><input type="date" id="f-followup" /></div>
+    </div>
+
+    <div class="section-title">Clinical notes</div>
+    <div class="form-grid">
+      <div class="field full"><label>Symptoms</label><textarea id="f-symptoms" placeholder="Describe presenting symptoms..."></textarea></div>
+      <div class="field full"><label>Diagnosis</label><textarea id="f-diagnosis" placeholder="Diagnosis or working impression..."></textarea></div>
+      <div class="field full"><label>Medications prescribed</label><textarea id="f-meds" placeholder="Drug name, dose, frequency — one per line..."></textarea></div>
+      <div class="field full"><label>Additional notes</label><textarea id="f-notes" placeholder="Any other relevant observations..."></textarea></div>
+    </div>
+
+    <div class="section-title">Attach files</div>
+    <label class="file-drop" for="f-file">
+      <div style="font-size:1.5rem;margin-bottom:6px;opacity:.5">&#128196;</div>
+      <div>Click to attach reports, X-rays, or lab results</div>
+      <div style="font-size:12px;margin-top:4px">(files are stored locally for this session)</div>
+      <input type="file" id="f-file" multiple />
+    </label>
+    <div id="file-list" style="margin-top:8px;font-size:13px;color:var(--c-muted)"></div>
+
+    <div id="record-msg" class="auth-msg" style="margin-top:8px"></div>
+    <div class="form-actions">
+      <button class="btn-outline" onclick="clearForm()">Clear</button>
+      <button class="btn-primary" onclick="saveRecord()">Save record</button>
+    </div>
+  </div>
+</div>
+
+<!-- REMINDERS PAGE -->
+<div id="page-reminders" class="page" style="display:none">
+  <div class="page-header">
+    <h2>Medication reminders</h2>
+    <p>Set push notifications so you never miss a dose</p>
+  </div>
+
+  <div id="notif-status-banner" class="notif-banner info">
+    <span>&#128276;</span>
+    <span>Enable push notifications to receive medication reminders on your device.</span>
+    <button class="notif-btn" onclick="requestNotifPermission()">Enable</button>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Add reminder</span></div>
+    <div class="form-grid">
+      <div class="field"><label>Medication name *</label><input type="text" id="r-name" placeholder="e.g. Metformin 500mg" /></div>
+      <div class="field"><label>Dosage</label><input type="text" id="r-dose" placeholder="e.g. 1 tablet" /></div>
+      <div class="field"><label>Time *</label><input type="time" id="r-time" /></div>
+      <div class="field"><label>Frequency</label>
+        <select id="r-freq">
+          <option value="daily">Every day</option>
+          <option value="twice">Twice daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="asneeded">As needed</option>
+        </select>
+      </div>
+      <div class="field full"><label>Instructions</label><input type="text" id="r-note" placeholder="e.g. Take after meals" /></div>
+    </div>
+    <div id="reminder-msg" class="auth-msg"></div>
+    <div class="form-actions"><button class="btn-primary" onclick="addReminder()">Set reminder</button></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Active reminders</span><span class="badge badge-teal" id="reminder-badge-2">0 set</span></div>
+    <div id="reminders-list"><div class="empty-state"><div>No reminders yet — add a medication above.</div></div></div>
+  </div>
+</div>
+
+<!-- NOTIFICATION PERMISSION MODAL -->
+<div class="modal-overlay" id="notif-modal">
+  <div class="modal">
+    <h3>Allow notification access</h3>
+    <p>MediTrack needs permission to send push notifications to remind you when it is time to take your medication. These notifications will appear on your device even when the app is in the background.</p>
+    <div class="modal-actions">
+      <button class="deny" onclick="denyNotif()">Not now</button>
+      <button class="allow" onclick="allowNotif()">Allow notifications</button>
+    </div>
+  </div>
+</div>
+
+<!-- PUSH NOTIFICATION SIMULATION -->
+<div class="push-popup" id="push-popup">
+  <button class="push-dismiss" onclick="document.getElementById('push-popup').classList.remove('show')">&#215;</button>
+  <div class="push-header">
+    <div class="push-icon">+</div>
+    <span class="push-app">MediTrack</span>
+    <span class="push-time" id="push-time">now</span>
+  </div>
+  <div class="push-title" id="push-title">Medication reminder</div>
+  <div class="push-body" id="push-body">Time to take your medication.</div>
+</div>
+
+<!-- AI DRUG CHECK FAB -->
+<div class="drug-fab">
+  <div class="drug-panel" id="drug-panel">
+    <div class="drug-panel-header">
+      <div style="width:28px;height:28px;border-radius:6px;background:var(--c-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0">+</div>
+      <h4>AI Drug Check</h4>
+      <button class="close-panel" onclick="toggleDrugPanel()">&#215;</button>
+    </div>
+    <div class="drug-chat" id="drug-chat">
+      <div class="dc-msg bot">Hello! I can help you check drug interactions, side effects, dosage guidelines, and more. What would you like to know?</div>
+    </div>
+    <div class="drug-input-row">
+      <input type="text" id="drug-input" placeholder="e.g. Can I take aspirin with warfarin?" onkeydown="if(event.key==='Enter')sendDrugMsg()" />
+      <button id="drug-send-btn" onclick="sendDrugMsg()">Ask</button>
+    </div>
+    <div class="drug-disclaimer">For informational purposes only. Always consult a licensed physician before making medical decisions.</div>
+  </div>
+  <button class="drug-fab-btn" onclick="toggleDrugPanel()" title="AI Drug Check">&#43;</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== STATE ====================
+const DEMO_USER = { name: 'Demo User', email: 'demo@meditrack.com', password: 'demo1234' };
+let currentUser = null;
+let records = [];
+let reminders = [];
+let notifPermission = 'default';
+let reminderTimers = [];
+let drugPanelOpen = false;
+
+// ==================== AUTH ====================
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0 && tab==='login')||(i===1 && tab==='register')));
+  document.getElementById('form-login').style.display = tab === 'login' ? '' : 'none';
+  document.getElementById('form-register').style.display = tab === 'register' ? '' : 'none';
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const msg = document.getElementById('login-msg');
+  if (!email || !pass) { msg.textContent = 'Please fill in all fields.'; return; }
+
+  const users = JSON.parse(localStorage.getItem('mt_users') || '[]');
+  users.push(DEMO_USER);
+  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === pass);
+  if (!user) { msg.textContent = 'Incorrect email or password.'; return; }
+
+  currentUser = user;
+  localStorage.setItem('mt_session', JSON.stringify(user));
+  loadUserData();
+  enterApp();
+}
+
+function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  const msg = document.getElementById('reg-msg');
+  if (!name || !email || !pass) { msg.textContent = 'Please fill in all fields.'; return; }
+  if (pass.length < 8) { msg.textContent = 'Password must be at least 8 characters.'; return; }
+
+  const users = JSON.parse(localStorage.getItem('mt_users') || '[]');
+  if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) { msg.textContent = 'An account with this email already exists.'; return; }
+  users.push({ name, email, password: pass });
+  localStorage.setItem('mt_users', JSON.stringify(users));
+
+  msg.textContent = 'Account created! You can now sign in.';
+  msg.className = 'auth-msg auth-success';
+  setTimeout(() => switchAuthTab('login'), 1500);
+}
+
+function logout() {
+  localStorage.removeItem('mt_session');
+  currentUser = null; records = []; reminders = [];
+  reminderTimers.forEach(clearTimeout);
+  reminderTimers = [];
+  document.getElementById('main-nav').style.display = 'none';
+  document.getElementById('page-auth').classList.add('active');
+  document.getElementById('page-auth').style.display = '';
+  document.getElementById('page-dashboard').style.display = 'none';
+  document.getElementById('page-add-record').style.display = 'none';
+  document.getElementById('page-reminders').style.display = 'none';
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-msg').textContent = '';
+  switchAuthTab('login');
+}
+
+function enterApp() {
+  document.getElementById('page-auth').style.display = 'none';
+  document.getElementById('page-auth').classList.remove('active');
+  document.getElementById('main-nav').style.display = 'flex';
+  const initials = currentUser.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('nav-avatar').textContent = initials;
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('dash-greeting').textContent = greet + ', ' + currentUser.name.split(' ')[0];
+  showPage('dashboard');
+}
+
+function loadUserData() {
+  const key = 'mt_data_' + currentUser.email;
+  const saved = JSON.parse(localStorage.getItem(key) || '{"records":[],"reminders":[]}');
+  records = saved.records || [];
+  reminders = saved.reminders || [];
+}
+
+function saveUserData() {
+  const key = 'mt_data_' + currentUser.email;
+  localStorage.setItem(key, JSON.stringify({ records, reminders }));
+}
+
+// ==================== PAGES ====================
+function showPage(page) {
+  ['dashboard','add-record','reminders'].forEach(p => {
+    const el = document.getElementById('page-' + p);
+    el.style.display = p === page ? 'block' : 'none';
+  });
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const btnMap = { dashboard: 0, 'add-record': 1, reminders: 2 };
+  document.querySelectorAll('.nav-btn')[btnMap[page]]?.classList.add('active');
+  if (page === 'dashboard') renderDashboard();
+  if (page === 'reminders') renderReminders();
+}
+
+// ==================== DASHBOARD ====================
+function renderDashboard() {
+  document.getElementById('stat-records').textContent = records.length;
+  const medCount = reminders.length;
+  document.getElementById('stat-meds').textContent = medCount;
+
+  const today = new Date().toISOString().slice(0,10);
+  const upcoming = records.filter(r => r.followup && r.followup >= today).length;
+  document.getElementById('stat-followups').textContent = upcoming;
+
+  const last = records.length ? records[records.length-1] : null;
+  document.getElementById('stat-last').textContent = last ? new Date(last.date).toLocaleDateString('en-IN', {day:'numeric',month:'short'}) : '—';
+
+  renderRecordsTable();
+  renderDashReminders();
+}
+
+function renderRecordsTable() {
+  const el = document.getElementById('records-container');
+  if (!records.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">&#128196;</div><div>No records yet — add your first health record to get started.</div></div>';
+    return;
+  }
+  const rows = [...records].reverse().slice(0,8).map((r,i) => `
+    <tr>
+      <td><strong>${r.name}</strong></td>
+      <td>${r.age || '—'}</td>
+      <td>${r.diagnosis || '—'}</td>
+      <td>${r.bp || '—'}</td>
+      <td>${r.date ? new Date(r.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'2-digit'}) : '—'}</td>
+      <td>
+        <button class="btn-sm" onclick="viewRecord(${records.length-1-i})">View</button>
+        <button class="btn-sm danger" onclick="deleteRecord(${records.length-1-i})">Delete</button>
+      </td>
+    </tr>`).join('');
+  el.innerHTML = `<table class="records-table"><thead><tr><th>Name</th><th>Age</th><th>Diagnosis</th><th>BP</th><th>Date</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderDashReminders() {
+  const el = document.getElementById('dash-reminders');
+  const badge = document.getElementById('reminder-count-badge');
+  badge.textContent = reminders.length + ' active';
+  if (!reminders.length) { el.innerHTML = '<div class="empty-state" style="padding:1rem 0"><div>No reminders set. Go to the Reminders tab to add medications.</div></div>'; return; }
+  el.innerHTML = `<div class="reminder-list">${reminders.slice(0,4).map(r => `
+    <div class="reminder-item">
+      <div class="ri-dot green"></div>
+      <div class="ri-info">
+        <div class="ri-name">${r.name}</div>
+        <div class="ri-meta">${r.dose ? r.dose + ' · ' : ''}${r.time} · ${r.freq === 'daily' ? 'Daily' : r.freq === 'twice' ? 'Twice daily' : r.freq === 'weekly' ? 'Weekly' : 'As needed'}</div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+// ==================== RECORDS ====================
+function saveRecord() {
+  const name = document.getElementById('f-name').value.trim();
+  const age = document.getElementById('f-age').value;
+  if (!name) { document.getElementById('record-msg').textContent = 'Patient name is required.'; return; }
+
+  const record = {
+    id: Date.now(),
+    date: new Date().toISOString(),
+    name, age,
+    gender: document.getElementById('f-gender').value,
+    mobile: document.getElementById('f-mobile').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    doctor: document.getElementById('f-doctor').value.trim(),
+    height: document.getElementById('f-height').value,
+    weight: document.getElementById('f-weight').value,
+    bp: document.getElementById('f-bp').value.trim(),
+    hr: document.getElementById('f-hr').value,
+    temp: document.getElementById('f-temp').value,
+    followup: document.getElementById('f-followup').value,
+    symptoms: document.getElementById('f-symptoms').value.trim(),
+    diagnosis: document.getElementById('f-diagnosis').value.trim(),
+    meds: document.getElementById('f-meds').value.trim(),
+    notes: document.getElementById('f-notes').value.trim(),
+  };
+  records.push(record);
+  saveUserData();
+  showToast('Record saved successfully');
+  clearForm();
+  document.getElementById('record-msg').textContent = '';
+  showPage('dashboard');
+}
+
+function clearForm() {
+  ['f-name','f-age','f-mobile','f-email','f-doctor','f-height','f-weight','f-bp','f-hr','f-temp','f-followup','f-symptoms','f-diagnosis','f-meds','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-gender').value = '';
+  document.getElementById('file-list').textContent = '';
+}
+
+function deleteRecord(idx) {
+  if (!confirm('Delete this record? This cannot be undone.')) return;
+  records.splice(idx, 1);
+  saveUserData();
+  renderDashboard();
+  showToast('Record deleted');
+}
+
+function viewRecord(idx) {
+  const r = records[idx];
+  const fields = [
+    ['Name', r.name], ['Age', r.age], ['Gender', r.gender], ['Mobile', r.mobile], ['Email', r.email],
+    ['Attending doctor', r.doctor], ['Height', r.height ? r.height + ' cm' : ''], ['Weight', r.weight ? r.weight + ' kg' : ''],
+    ['Blood pressure', r.bp], ['Heart rate', r.hr ? r.hr + ' bpm' : ''], ['Temperature', r.temp ? r.temp + ' °C' : ''],
+    ['Follow-up date', r.followup], ['Symptoms', r.symptoms], ['Diagnosis', r.diagnosis],
+    ['Medications', r.meds], ['Notes', r.notes],
+    ['Entry date', r.date ? new Date(r.date).toLocaleString('en-IN') : '']
+  ].filter(([,v]) => v);
+
+  const modal = document.getElementById('notif-modal');
+  modal.innerHTML = `
+    <div class="modal detail-modal">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <h3>Record: ${r.name}</h3>
+        <button onclick="document.getElementById('notif-modal').classList.remove('open')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--c-muted)">&#215;</button>
+      </div>
+      ${fields.map(([k,v]) => `<div class="detail-row"><div class="detail-key">${k}</div><div class="detail-val">${v}</div></div>`).join('')}
+    </div>`;
+  modal.classList.add('open');
+  modal.onclick = e => { if(e.target === modal) modal.classList.remove('open'); };
+}
+
+// ==================== REMINDERS ====================
+function addReminder() {
+  const name = document.getElementById('r-name').value.trim();
+  const time = document.getElementById('r-time').value;
+  const msg = document.getElementById('reminder-msg');
+  if (!name || !time) { msg.textContent = 'Medication name and time are required.'; return; }
+
+  const reminder = {
+    id: Date.now(),
+    name,
+    dose: document.getElementById('r-dose').value.trim(),
+    time,
+    freq: document.getElementById('r-freq').value,
+    note: document.getElementById('r-note').value.trim()
+  };
+  reminders.push(reminder);
+  saveUserData();
+  msg.textContent = '';
+  ['r-name','r-dose','r-time','r-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('r-freq').value = 'daily';
+  scheduleReminder(reminder);
+  renderReminders();
+  showToast('Reminder set for ' + time);
+}
+
+function renderReminders() {
+  const el = document.getElementById('reminders-list');
+  const b2 = document.getElementById('reminder-badge-2');
+  b2.textContent = reminders.length + ' set';
+  const notifBanner = document.getElementById('notif-status-banner');
+
+  if (notifPermission === 'granted') {
+    notifBanner.className = 'notif-banner success';
+    notifBanner.innerHTML = '<span>&#10003;</span><span>Push notifications are enabled. You will receive alerts at your scheduled times.</span>';
+  } else if (notifPermission === 'denied') {
+    notifBanner.className = 'notif-banner warn';
+    notifBanner.innerHTML = '<span>&#9888;</span><span>Notifications are blocked. Please enable them in your browser settings to receive reminders.</span>';
+  }
+
+  if (!reminders.length) { el.innerHTML = '<div class="empty-state"><div>No reminders yet — add a medication above.</div></div>'; return; }
+  el.innerHTML = `<div class="reminder-list">${reminders.map(r => `
+    <div class="reminder-item">
+      <div class="ri-dot green"></div>
+      <div class="ri-info">
+        <div class="ri-name">${r.name}${r.dose ? ' — ' + r.dose : ''}</div>
+        <div class="ri-meta">${r.time} · ${r.freq === 'daily' ? 'Daily' : r.freq === 'twice' ? 'Twice daily' : r.freq === 'weekly' ? 'Weekly' : 'As needed'}${r.note ? ' · ' + r.note : ''}</div>
+      </div>
+      <button class="btn-sm danger" onclick="deleteReminder(${r.id})">Remove</button>
+    </div>`).join('')}</div>`;
+}
+
+function deleteReminder(id) {
+  reminders = reminders.filter(r => r.id !== id);
+  saveUserData();
+  renderReminders();
+  showToast('Reminder removed');
+}
+
+function scheduleReminder(r) {
+  const [h, m] = r.time.split(':').map(Number);
+  const now = new Date();
+  let fire = new Date();
+  fire.setHours(h, m, 0, 0);
+  if (fire <= now) fire.setDate(fire.getDate() + 1);
+  const ms = fire - now;
+  const t = setTimeout(() => triggerPushNotification(r.name, r.dose, r.note), ms);
+  reminderTimers.push(t);
+}
+
+// ==================== NOTIFICATIONS ====================
+function requestNotifPermission() {
+  document.getElementById('notif-modal').innerHTML = `
+    <div class="modal">
+      <h3>Allow notification access</h3>
+      <p>MediTrack needs permission to send push notifications to remind you when it is time to take your medication. These notifications will appear on your device even when the app is in the background.</p>
+      <div class="modal-actions">
+        <button class="deny" onclick="denyNotif()">Not now</button>
+        <button class="allow" onclick="allowNotif()">Allow notifications</button>
+      </div>
+    </div>`;
+  document.getElementById('notif-modal').classList.add('open');
+}
+
+function allowNotif() {
+  document.getElementById('notif-modal').classList.remove('open');
+  if ('Notification' in window) {
+    Notification.requestPermission().then(perm => {
+      notifPermission = perm;
+      renderReminders();
+      if (perm === 'granted') {
+        showToast('Notifications enabled');
+        reminders.forEach(scheduleReminder);
+        // Demo popup after 3s
+        setTimeout(() => triggerPushNotification('Notification test', '', 'Reminders are now active'), 3000);
+      }
+    });
+  } else {
+    notifPermission = 'granted';
+    renderReminders();
+    showToast('Notifications enabled (simulated)');
+    setTimeout(() => triggerPushNotification('Notification test', '', 'Reminders are now active'), 3000);
+  }
+}
+
+function denyNotif() {
+  document.getElementById('notif-modal').classList.remove('open');
+  notifPermission = 'denied';
+  renderReminders();
+}
+
+function triggerPushNotification(name, dose, note) {
+  const title = 'Medication reminder: ' + name;
+  const body = [dose, note].filter(Boolean).join(' · ') || 'Time to take your medication.';
+
+  if (notifPermission === 'granted' && 'Notification' in window && Notification.permission === 'granted') {
+    new Notification(title, { body, icon: '' });
+  }
+
+  // Always show in-app popup
+  document.getElementById('push-title').textContent = title;
+  document.getElementById('push-body').textContent = body;
+  document.getElementById('push-time').textContent = 'now';
+  document.getElementById('push-popup').classList.add('show');
+  setTimeout(() => document.getElementById('push-popup').classList.remove('show'), 8000);
+}
+
+// ==================== AI DRUG CHECK ====================
+function toggleDrugPanel() {
+  drugPanelOpen = !drugPanelOpen;
+  document.getElementById('drug-panel').classList.toggle('open', drugPanelOpen);
+  if (drugPanelOpen) document.getElementById('drug-input').focus();
+}
+
+async function sendDrugMsg() {
+  const input = document.getElementById('drug-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const chat = document.getElementById('drug-chat');
+  const btn = document.getElementById('drug-send-btn');
+
+  chat.innerHTML += `<div class="dc-msg user">${escHtml(text)}</div>`;
+  input.value = '';
+  btn.disabled = true;
+  const loadId = 'load-' + Date.now();
+  chat.innerHTML += `<div class="dc-msg loading" id="${loadId}">Checking drug information...</div>`;
+  chat.scrollTop = chat.scrollHeight;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: 'You are a clinical pharmacist assistant integrated into MediTrack, a personal health dashboard. Answer questions about drug interactions, side effects, dosage guidelines, contraindications, and medication safety clearly and concisely. Always end with a brief note that the user should consult their doctor or pharmacist before making any changes. Do not diagnose or prescribe. Keep responses under 200 words unless the question requires more detail. Do not use markdown headers or bullet asterisks — use plain text with dashes for lists.',
+        messages: [{ role: 'user', content: text }]
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.map(c => c.text || '').join('') || 'Sorry, I could not get a response. Please try again.';
+    document.getElementById(loadId)?.remove();
+    chat.innerHTML += `<div class="dc-msg bot">${escHtml(reply).replace(/\n/g,'<br>')}</div>`;
+  } catch (e) {
+    document.getElementById(loadId)?.remove();
+    chat.innerHTML += `<div class="dc-msg bot">Network error — please check your connection and try again.</div>`;
+  }
+  btn.disabled = false;
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ==================== FILE INPUT ====================
+document.getElementById('f-file').addEventListener('change', function() {
+  const list = [...this.files].map(f => f.name).join(', ');
+  document.getElementById('file-list').textContent = list || '';
+});
+
+// ==================== TOAST ====================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ==================== AUTO-LOGIN ====================
+(function() {
+  const session = localStorage.getItem('mt_session');
+  if (session) {
+    try {
+      currentUser = JSON.parse(session);
+      loadUserData();
+      enterApp();
+    } catch(e) { localStorage.removeItem('mt_session'); }
+  }
+})();
+</script>
+</body>
+</html>
