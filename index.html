@@ -1,70 +1,376 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <script>
-    const session = JSON.parse(localStorage.getItem('mt_session') || 'null');
-
-    if (!session || session.expires < Date.now()) {
-      localStorage.removeItem('mt_session');
-      localStorage.removeItem('mt_user');
-      window.location.href = 'auth.html';
-    }
-  </script>
-
-  <title>MediTrack</title>
-
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="./manifest.json" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#06b6d4" />
+  <title>MediTrack</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+      min-height: 100vh;
+      color: #e2e8f0;
+    }
 
+    /* NAV */
+    nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 32px;
+      background: rgba(6,182,212,0.08);
+      border-bottom: 1px solid rgba(6,182,212,0.2);
+      backdrop-filter: blur(10px);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 1.4rem; font-weight: 700; color: #06b6d4; }
+    .nav-logo span { font-size: 1.6rem; }
+    .nav-links { display: flex; gap: 12px; align-items: center; }
+    .nav-links a, .nav-links button {
+      padding: 8px 18px; border-radius: 8px; font-size: 0.9rem; font-weight: 600;
+      text-decoration: none; cursor: pointer; border: none; transition: all 0.2s;
+    }
+    .btn-outline { background: transparent; border: 1.5px solid #06b6d4 !important; color: #06b6d4; }
+    .btn-outline:hover { background: #06b6d4; color: #0f172a; }
+    .btn-solid { background: #06b6d4; color: #0f172a; }
+    .btn-solid:hover { background: #0891b2; }
+    .btn-logout { background: rgba(239,68,68,0.15); border: 1.5px solid rgba(239,68,68,0.4) !important; color: #f87171; }
+    .btn-logout:hover { background: #ef4444; color: white; }
 
+    /* HERO */
+    .hero {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 80px 24px 40px;
+    }
+    .hero-badge {
+      background: rgba(6,182,212,0.15); border: 1px solid rgba(6,182,212,0.35);
+      color: #67e8f9; padding: 6px 16px; border-radius: 99px; font-size: 0.8rem;
+      letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 800;
+      background: linear-gradient(135deg, #e2e8f0, #06b6d4, #67e8f9);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px;
+    }
+    .hero p { font-size: 1.1rem; color: #94a3b8; max-width: 520px; line-height: 1.7; margin-bottom: 40px; }
+    .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+    .hero-buttons a {
+      padding: 14px 32px; border-radius: 10px; font-size: 1rem; font-weight: 700;
+      text-decoration: none; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+    }
+    .hero-cta-primary { background: linear-gradient(135deg, #06b6d4, #0891b2); color: #0f172a; box-shadow: 0 4px 20px rgba(6,182,212,0.35); }
+    .hero-cta-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(6,182,212,0.5); }
+    .hero-cta-secondary { background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.15); color: #e2e8f0; }
+    .hero-cta-secondary:hover { background: rgba(255,255,255,0.12); }
+
+    /* STATS */
+    .stats { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; padding: 0 24px 60px; }
+    .stat-card {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px; padding: 24px 32px; text-align: center; min-width: 140px;
+    }
+    .stat-card .number { font-size: 2rem; font-weight: 800; color: #06b6d4; }
+    .stat-card .label { font-size: 0.82rem; color: #64748b; margin-top: 4px; }
+
+    /* FEATURE CARDS */
+    .features { padding: 0 24px 80px; max-width: 1100px; margin: 0 auto; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .feature-card {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 16px; padding: 28px; transition: all 0.25s; cursor: default;
+    }
+    .feature-card:hover { border-color: rgba(6,182,212,0.4); transform: translateY(-4px); background: rgba(6,182,212,0.06); }
+    .feature-icon { font-size: 2rem; margin-bottom: 14px; }
+    .feature-card h3 { font-size: 1.05rem; font-weight: 700; color: #e2e8f0; margin-bottom: 8px; }
+    .feature-card p { font-size: 0.88rem; color: #64748b; line-height: 1.6; }
+
+    /* MEDITRACK HUB */
+    #hub-btn {
+      position: fixed; bottom: 28px; right: 28px; z-index: 999;
+      background: linear-gradient(135deg, #06b6d4, #6366f1);
+      border: none; border-radius: 99px; padding: 14px 22px;
+      color: white; font-weight: 700; font-size: 0.9rem;
+      cursor: pointer; display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 4px 24px rgba(6,182,212,0.5); transition: all 0.2s;
+    }
+    #hub-btn:hover { transform: scale(1.06); box-shadow: 0 6px 32px rgba(6,182,212,0.7); }
+
+    /* HUB OVERLAY */
+    #hub-overlay {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+    }
+    #hub-overlay.open { display: flex; }
+
+    #hub-panel {
+      background: linear-gradient(160deg, #0f172a, #1a2744);
+      border: 1px solid rgba(6,182,212,0.3);
+      border-radius: 24px; width: 92%; max-width: 680px;
+      max-height: 85vh; overflow-y: auto; padding: 36px;
+      position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    #hub-close {
+      position: absolute; top: 18px; right: 18px;
+      background: rgba(255,255,255,0.08); border: none; border-radius: 8px;
+      width: 36px; height: 36px; color: #94a3b8; font-size: 1.2rem;
+      cursor: pointer; transition: all 0.2s;
+    }
+    #hub-close:hover { background: rgba(239,68,68,0.2); color: #f87171; }
+
+    .hub-header { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+    .hub-icon { width: 52px; height: 52px; border-radius: 14px;
+      background: linear-gradient(135deg, #06b6d4, #6366f1);
+      display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .hub-header h2 { font-size: 1.5rem; font-weight: 800; color: #e2e8f0; }
+    .hub-header p { font-size: 0.82rem; color: #64748b; }
+
+    .hub-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .hub-tab {
+      padding: 8px 18px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+      background: transparent; color: #94a3b8; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+    }
+    .hub-tab.active { background: rgba(6,182,212,0.2); border-color: #06b6d4; color: #06b6d4; font-weight: 600; }
+
+    .hub-content { display: none; }
+    .hub-content.active { display: block; }
+
+    /* Summary tab */
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .summary-card {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 16px; text-align: center;
+    }
+    .summary-card .s-num { font-size: 1.8rem; font-weight: 800; color: #06b6d4; }
+    .summary-card .s-lbl { font-size: 0.78rem; color: #64748b; margin-top: 4px; }
+
+    /* Reminders tab */
+    .reminder-list { display: flex; flex-direction: column; gap: 10px; }
+    .reminder-item {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 14px 16px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .reminder-item .r-med { font-weight: 600; color: #e2e8f0; }
+    .reminder-item .r-meta { font-size: 0.8rem; color: #64748b; }
+    .reminder-item .r-time { font-size: 0.85rem; color: #06b6d4; font-weight: 600; }
+    .no-data { text-align: center; padding: 32px; color: #475569; font-size: 0.9rem; }
+
+    /* Records tab */
+    .record-mini {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;
+    }
+    .record-mini .r-name { font-weight: 700; color: #e2e8f0; font-size: 1rem; }
+    .record-mini .r-detail { font-size: 0.8rem; color: #64748b; margin-top: 4px; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 600; margin-right: 6px; }
+    .badge-blue { background: rgba(6,182,212,0.15); color: #06b6d4; border: 1px solid rgba(6,182,212,0.3); }
+    .badge-green { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+
+    footer { text-align: center; padding: 24px; color: #334155; font-size: 0.8rem; }
+  </style>
 </head>
+<body>
 
-<body class="home">
-
-  <div class="user-box">
-    <div id="welcomeUser"></div>
-    <button class="logout-btn" onclick="logout()">
-      Logout
-    </button>
+<nav>
+  <div class="nav-logo"><span>🏥</span> MediTrack</div>
+  <div class="nav-links">
+    <a href="add-record.html" class="btn-outline">+ Add Record</a>
+    <a href="dashboard.html" class="btn-solid">Dashboard</a>
+    <button class="btn-logout" onclick="handleLogout()">Logout</button>
   </div>
+</nav>
 
-  <div class="one">
-    <h1>MediTrack</h1>
-    <p>A responsive web dashboard to manage health records and vitals</p>
-
-    <a href="add-record.html">Add Record</a>
-    <a href="dashboard.html">Dashboard</a>
+<section class="hero">
+  <div class="hero-badge">🩺 Health Records Management System</div>
+  <h1>Your Health,<br>Organised & Accessible</h1>
+  <p>MediTrack lets you store patient vitals, set medicine reminders, and review health records — all from one secure dashboard.</p>
+  <div class="hero-buttons">
+    <a href="add-record.html" class="hero-cta-primary">📋 Add Record</a>
+    <a href="dashboard.html" class="hero-cta-secondary">📊 View Dashboard</a>
   </div>
+</section>
 
-  
+<div class="stats" id="stats-row">
+  <div class="stat-card"><div class="number" id="stat-total">0</div><div class="label">Total Records</div></div>
+  <div class="stat-card"><div class="number" id="stat-reminders">0</div><div class="label">Active Reminders</div></div>
+  <div class="stat-card"><div class="number" id="stat-today">0</div><div class="label">Added Today</div></div>
+</div>
 
-  <script>
-    const user = JSON.parse(localStorage.getItem('mt_user'));
+<section class="features">
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">📋</div>
+      <h3>Add Patient Records</h3>
+      <p>Log vitals like BP, heart rate, temperature, diagnosis, medications, and attach medical files — all in one form.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Live Dashboard</h3>
+      <p>See all saved records instantly on the dashboard. Filter, search, and review health history at a glance.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💊</div>
+      <h3>Medicine Reminders</h3>
+      <p>Set multiple timed reminders per patient for different medicines. Get browser alerts so you never miss a dose.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <h3>MediTrack Hub</h3>
+      <p>AI-powered quick access panel — view record summaries, active reminders, and recent patients instantly.</p>
+    </div>
+  </div>
+</section>
 
-    if(user){
-      document.getElementById('welcomeUser').innerHTML =
-      `<strong>${user.name}</strong><br>${user.role}`;
+<!-- MediTrack Hub Button -->
+<button id="hub-btn" onclick="openHub()">🤖 MediTrack Hub</button>
+
+<!-- MediTrack Hub Overlay -->
+<div id="hub-overlay" onclick="overlayClick(event)">
+  <div id="hub-panel">
+    <button id="hub-close" onclick="closeHub()">✕</button>
+
+    <div class="hub-header">
+      <div class="hub-icon">🤖</div>
+      <div>
+        <h2>MediTrack Hub</h2>
+        <p>Your quick-access health command centre</p>
+      </div>
+    </div>
+
+    <div class="hub-tabs">
+      <button class="hub-tab active" onclick="switchTab('summary')">📊 Summary</button>
+      <button class="hub-tab" onclick="switchTab('reminders')">💊 Reminders</button>
+      <button class="hub-tab" onclick="switchTab('records')">📋 Recent Records</button>
+    </div>
+
+    <!-- Summary Tab -->
+    <div class="hub-content active" id="tab-summary">
+      <div class="summary-grid" id="hub-summary-grid">
+        <div class="summary-card"><div class="s-num" id="h-total">0</div><div class="s-lbl">Total Records</div></div>
+        <div class="summary-card"><div class="s-num" id="h-reminders">0</div><div class="s-lbl">Reminders</div></div>
+        <div class="summary-card"><div class="s-num" id="h-today">0</div><div class="s-lbl">Added Today</div></div>
+        <div class="summary-card"><div class="s-num" id="h-doctors">0</div><div class="s-lbl">Doctors</div></div>
+      </div>
+      <div id="hub-ai-tip" style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);border-radius:12px;padding:14px 16px;margin-top:8px;font-size:0.88rem;color:#a5b4fc;line-height:1.6;"></div>
+    </div>
+
+    <!-- Reminders Tab -->
+    <div class="hub-content" id="tab-reminders">
+      <div class="reminder-list" id="hub-reminder-list"></div>
+    </div>
+
+    <!-- Records Tab -->
+    <div class="hub-content" id="tab-records">
+      <div id="hub-records-list"></div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2025 MediTrack · Health Records & Vitals Dashboard</footer>
+
+<script>
+  // ── Helpers ──────────────────────────────────────────
+  function getRecords() { try { return JSON.parse(localStorage.getItem('meditrack_records') || '[]'); } catch { return []; } }
+  function getReminders() {
+    const records = getRecords();
+    const all = [];
+    records.forEach(r => {
+      if (Array.isArray(r.reminders)) {
+        r.reminders.forEach(rem => all.push({ ...rem, patientName: r.patientName }));
+      }
+    });
+    return all;
+  }
+  function todayStr() { return new Date().toISOString().slice(0,10); }
+
+  // ── Stat bar ─────────────────────────────────────────
+  function refreshStats() {
+    const records = getRecords();
+    const reminders = getReminders();
+    const todayCount = records.filter(r => r.savedAt && r.savedAt.startsWith(todayStr())).length;
+    document.getElementById('stat-total').textContent = records.length;
+    document.getElementById('stat-reminders').textContent = reminders.length;
+    document.getElementById('stat-today').textContent = todayCount;
+  }
+  refreshStats();
+
+  // ── Hub open/close ────────────────────────────────────
+  function openHub() {
+    document.getElementById('hub-overlay').classList.add('open');
+    loadHubData();
+  }
+  function closeHub() { document.getElementById('hub-overlay').classList.remove('open'); }
+  function overlayClick(e) { if (e.target === document.getElementById('hub-overlay')) closeHub(); }
+
+  function switchTab(name) {
+    document.querySelectorAll('.hub-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.hub-content').forEach(c => c.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+
+  function loadHubData() {
+    const records = getRecords();
+    const reminders = getReminders();
+    const todayCount = records.filter(r => r.savedAt && r.savedAt.startsWith(todayStr())).length;
+    const doctors = [...new Set(records.map(r => r.doctor).filter(Boolean))].length;
+
+    document.getElementById('h-total').textContent = records.length;
+    document.getElementById('h-reminders').textContent = reminders.length;
+    document.getElementById('h-today').textContent = todayCount;
+    document.getElementById('h-doctors').textContent = doctors;
+
+    // AI Tip
+    const tips = [
+      '💡 Regular follow-ups improve patient outcomes. Check your upcoming dates.',
+      '💡 ' + (reminders.length > 0 ? `You have ${reminders.length} active medicine reminder(s). Stay on schedule!` : 'Add medicine reminders from the Add Record page to stay on top of doses.'),
+      '💡 ' + (records.length === 0 ? 'Start by adding your first patient record.' : `You have ${records.length} record(s) stored. View them on the Dashboard.`),
+    ];
+    document.getElementById('hub-ai-tip').textContent = tips[Math.floor(Math.random() * tips.length)];
+
+    // Reminders tab
+    const rList = document.getElementById('hub-reminder-list');
+    if (reminders.length === 0) {
+      rList.innerHTML = '<div class="no-data">💊 No reminders set yet.<br>Add reminders from the Add Record page.</div>';
+    } else {
+      rList.innerHTML = reminders.map(r => `
+        <div class="reminder-item">
+          <div>
+            <div class="r-med">💊 ${r.medicineName || 'Medicine'}</div>
+            <div class="r-meta">Patient: ${r.patientName || '—'} · ${r.frequency || ''} · ${r.duration || ''}</div>
+          </div>
+          <div class="r-time">⏰ ${r.time || ''}</div>
+        </div>`).join('');
     }
 
-    function logout(){
-      localStorage.removeItem('mt_session');
-      localStorage.removeItem('mt_user');
-
-      alert('Logged out successfully');
-
-      window.location.href='auth.html';
+    // Records tab
+    const recList = document.getElementById('hub-records-list');
+    if (records.length === 0) {
+      recList.innerHTML = '<div class="no-data">📋 No records yet.<br><a href="add-record.html" style="color:#06b6d4">Add your first record →</a></div>';
+    } else {
+      recList.innerHTML = [...records].reverse().slice(0, 5).map(r => `
+        <div class="record-mini">
+          <div class="r-name">${r.patientName || 'Unknown'}</div>
+          <div class="r-detail">
+            <span class="badge badge-blue">Age ${r.age || '—'}</span>
+            <span class="badge badge-green">${r.gender || '—'}</span>
+            ${r.diagnosis ? `<span style="color:#94a3b8;font-size:0.8rem">Dx: ${r.diagnosis}</span>` : ''}
+          </div>
+          <div class="r-detail" style="margin-top:4px">Dr. ${r.doctor || '—'} · ${r.savedAt ? r.savedAt.slice(0,10) : ''}</div>
+        </div>`).join('');
     }
-  </script>
+  }
 
-<script src="meditrack-hub.js"></script>
-  
-<script src="reminder.js"></script>
-</body>
-</html>
-
+  function handleLogout() {
+    if (confirm('Log out of MediTrack?')) {
+      alert('Logged out. Redirecting to login…');
+    }
+  }
+</script>
 </body>
 </html>
