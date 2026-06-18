@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -188,7 +189,78 @@
     .nav-btn { padding: 6px 8px; font-size: 12px; }
     nav { padding: 0 .75rem; }
   }
+
+/* ===== Resume feature additions: keeps existing MediTrack layout/classes ===== */
+body.dark-mode {
+  --c-bg: #0f172a;
+  --c-card: #111827;
+  --c-text: #e5e7eb;
+  --c-muted: #9ca3af;
+  --c-border: #334155;
+  background: var(--c-bg);
+  color: var(--c-text);
+}
+body.dark-mode .auth-logo h1 span:last-child { color: #e5e7eb !important; }
+.feature-toolbar {
+  display: grid;
+  grid-template-columns: 1.2fr repeat(3, minmax(130px, .5fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.feature-toolbar input,
+.feature-toolbar select,
+.patient-switcher select {
+  width: 100%;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--c-card);
+  color: var(--c-text);
+}
+.chart-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, .6fr);
+  gap: 14px;
+}
+.chart-box {
+  height: 300px;
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--c-card);
+}
+.chart-box canvas { width: 100% !important; height: 100% !important; }
+.patient-switcher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.patient-switcher select { min-width: 190px; }
+.fab-stack {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 30;
+}
+.fab-stack .drug-fab { position: static; }
+.ai-panel { right: 0; bottom: 70px; }
+.drug-panel.drug-only-panel { right: 0; bottom: 70px; }
+.feature-note { font-size: 12px; color: var(--c-muted); margin-top: 8px; }
+@media (max-width: 800px) {
+  .feature-toolbar, .chart-grid { grid-template-columns: 1fr; }
+  .chart-box { height: 260px; }
+  .patient-switcher { width: 100%; }
+  .patient-switcher select { flex: 1; min-width: 0; }
+}
 </style>
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#0f766e">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -200,6 +272,8 @@
       <button class="nav-btn active" onclick="showPage('add-record')">Add Record</button>
       <button class="nav-btn" onclick="showPage('dashboard')">Dashboard</button>
       <button class="nav-btn" onclick="showPage('reminders')">Reminders</button>
+      <button class="nav-btn" onclick="downloadReport()">Download Report</button>
+      <button class="nav-btn" onclick="toggleDarkMode()">Dark Mode</button>
     </div>
     <div id="nav-user-info">
       <div class="avatar" id="nav-avatar">--</div>
@@ -247,6 +321,11 @@
   <div class="page-header">
     <h2 id="dash-greeting">Good morning</h2>
     <p>Here is your health summary</p>
+    <div class="patient-switcher">
+      <select id="patient-filter" onchange="setActivePatient(this.value)"></select>
+      <button class="btn-sm" onclick="addPatientProfile()">+ Patient</button>
+      <button class="btn-sm" onclick="downloadReport()">Download Report</button>
+    </div>
   </div>
 
   <div class="stats-grid" id="stats-grid">
@@ -261,8 +340,29 @@
       <span class="card-title">Recent records</span>
       <button class="btn-sm" onclick="showPage('add-record')">+ Add record</button>
     </div>
+    <div class="feature-toolbar">
+      <input id="record-search" placeholder="Search by patient, diagnosis, medication" oninput="renderRecordsTable()">
+      <input id="date-from" type="date" onchange="renderRecordsTable()">
+      <input id="date-to" type="date" onchange="renderRecordsTable()">
+      <select id="sort-records" onchange="renderRecordsTable()">
+        <option value="latest">Latest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="name">Patient name</option>
+      </select>
+    </div>
     <div id="records-container">
       <div class="empty-state"><div class="icon">&#128196;</div><div>No records yet — add your first health record to get started.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Health charts</span>
+      <span class="badge badge-teal">Chart.js</span>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-box"><canvas id="vitals-chart"></canvas></div>
+      <div class="chart-box"><canvas id="med-chart"></canvas></div>
     </div>
   </div>
 
@@ -311,7 +411,7 @@
     <label class="file-drop" for="f-file">
       <div style="font-size:1.5rem;margin-bottom:6px;opacity:.5">&#128196;</div>
       <div>Click to attach reports, X-rays, or lab results</div>
-      <div style="font-size:12px;margin-top:4px">(files are stored locally for this session)</div>
+      <div style="font-size:12px;margin-top:4px">(files are saved persistently in this browser with IndexedDB)</div>
       <input type="file" id="f-file" multiple />
     </label>
     <div id="file-list" style="margin-top:8px;font-size:13px;color:var(--c-muted)"></div>
@@ -387,24 +487,45 @@
   <div class="push-body" id="push-body">Time to take your medication.</div>
 </div>
 
-<!-- AI DRUG CHECK FAB -->
-<div class="drug-fab">
-  <div class="drug-panel" id="drug-panel">
-    <div class="drug-panel-header">
-      <div style="width:28px;height:28px;border-radius:6px;background:var(--c-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0">+</div>
-      <h4>AI Drug Check</h4>
-      <button class="close-panel" onclick="toggleDrugPanel()">&#215;</button>
+<!-- SEPARATE AI ASSISTANT AND DRUG CHECK FABS -->
+<div class="fab-stack">
+  <div class="drug-fab">
+    <div class="drug-panel ai-panel" id="ai-panel">
+      <div class="drug-panel-header">
+        <div style="width:28px;height:28px;border-radius:6px;background:var(--c-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0">AI</div>
+        <h4>AI Assistant</h4>
+        <button class="close-panel" onclick="toggleAiPanel()">Ã—</button>
+      </div>
+      <div class="drug-chat" id="ai-chat">
+        <div class="dc-msg bot">Ask for a summary of your records, missing vitals, or what to export. This works locally without sending health data anywhere.</div>
+      </div>
+      <div class="drug-input-row">
+        <input type="text" id="ai-input" placeholder="e.g. summarize my latest records" onkeydown="if(event.key==='Enter')sendAiMsg()">
+        <button onclick="sendAiMsg()">Ask</button>
+      </div>
+      <div class="drug-disclaimer">Portfolio AI-style assistant. Not medical advice.</div>
     </div>
-    <div class="drug-chat" id="drug-chat">
-      <div class="dc-msg bot">Hello! I can help you check drug interactions, side effects, dosage guidelines, and more. What would you like to know?</div>
-    </div>
-    <div class="drug-input-row">
-      <input type="text" id="drug-input" placeholder="e.g. Can I take aspirin with warfarin?" onkeydown="if(event.key==='Enter')sendDrugMsg()" />
-      <button id="drug-send-btn" onclick="sendDrugMsg()">Ask</button>
-    </div>
-    <div class="drug-disclaimer">For informational purposes only. Always consult a licensed physician before making medical decisions.</div>
+    <button class="drug-fab-btn" onclick="toggleAiPanel()" title="AI Assistant">AI</button>
   </div>
-  <button class="drug-fab-btn" onclick="toggleDrugPanel()" title="AI Drug Check"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z" fill="white"/><circle cx="8" cy="10" r="1.2" fill="#0f766e"/><circle cx="12" cy="10" r="1.2" fill="#0f766e"/><circle cx="16" cy="10" r="1.2" fill="#0f766e"/></svg></button>
+
+  <div class="drug-fab">
+    <div class="drug-panel drug-only-panel" id="drug-panel">
+      <div class="drug-panel-header">
+        <div style="width:28px;height:28px;border-radius:6px;background:var(--c-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0">+</div>
+        <h4>Drug Check</h4>
+        <button class="close-panel" onclick="toggleDrugPanel()">Ã—</button>
+      </div>
+      <div class="drug-chat" id="drug-chat">
+        <div class="dc-msg bot">Enter two or more medicines separated by commas to check common demo interactions.</div>
+      </div>
+      <div class="drug-input-row">
+        <input type="text" id="drug-input" placeholder="e.g. aspirin, warfarin" onkeydown="if(event.key==='Enter')sendDrugMsg()">
+        <button id="drug-send-btn" onclick="sendDrugMsg()">Check</button>
+      </div>
+      <div class="drug-disclaimer">For informational purposes only. Always consult a licensed physician before making medical decisions.</div>
+    </div>
+    <button class="drug-fab-btn" onclick="toggleDrugPanel()" title="Drug Check">Rx</button>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -418,6 +539,10 @@ let reminders = [];
 let notifPermission = 'default';
 let reminderTimers = [];
 let drugPanelOpen = false;
+let aiPanelOpen = false;
+let vitalsChart = null;
+let medChart = null;
+let activePatient = 'all';
 
 // ==================== AUTH ====================
 function switchAuthTab(tab) {
@@ -502,6 +627,49 @@ function saveUserData() {
   localStorage.setItem(key, JSON.stringify({ records, reminders }));
 }
 
+function saveFileToIndexedDB(recordId, files) {
+  if (!files || !files.length || !window.indexedDB) return;
+  const request = indexedDB.open('meditrack_files', 1);
+  request.onupgradeneeded = () => request.result.createObjectStore('files');
+  request.onsuccess = () => {
+    const tx = request.result.transaction('files', 'readwrite');
+    const store = tx.objectStore('files');
+    [...files].forEach((file, index) => store.put({ name: file.name, type: file.type, file }, recordId + '-' + index));
+  };
+}
+
+function getVisibleRecords() {
+  const q = (document.getElementById('record-search')?.value || '').toLowerCase();
+  const from = document.getElementById('date-from')?.value || '';
+  const to = document.getElementById('date-to')?.value || '';
+  const sort = document.getElementById('sort-records')?.value || 'latest';
+  let list = [...records];
+  if (activePatient !== 'all') list = list.filter(r => r.name === activePatient);
+  if (q) list = list.filter(r => [r.name, r.diagnosis, r.meds, r.notes, r.bp].join(' ').toLowerCase().includes(q));
+  if (from) list = list.filter(r => (r.date || '').slice(0,10) >= from);
+  if (to) list = list.filter(r => (r.date || '').slice(0,10) <= to);
+  list.sort((a,b) => sort === 'oldest' ? (a.date || '').localeCompare(b.date || '') : sort === 'name' ? (a.name || '').localeCompare(b.name || '') : (b.date || '').localeCompare(a.date || ''));
+  return list;
+}
+
+function updatePatientSelector() {
+  const select = document.getElementById('patient-filter');
+  if (!select) return;
+  const names = [...new Set(records.map(r => r.name).filter(Boolean))];
+  select.innerHTML = '<option value="all">All patients</option>' + names.map(n => `<option value="${escHtml(n)}">${escHtml(n)}</option>`).join('');
+  select.value = names.includes(activePatient) ? activePatient : 'all';
+}
+
+function setActivePatient(name) {
+  activePatient = name;
+  renderDashboard();
+}
+
+function addPatientProfile() {
+  showPage('add-record');
+  document.getElementById('f-name').focus();
+}
+
 // ==================== PAGES ====================
 function showPage(page) {
   ['dashboard','add-record','reminders'].forEach(p => {
@@ -528,29 +696,38 @@ function renderDashboard() {
   const last = records.length ? records[records.length-1] : null;
   document.getElementById('stat-last').textContent = last ? new Date(last.date).toLocaleDateString('en-IN', {day:'numeric',month:'short'}) : '—';
 
+  updatePatientSelector();
   renderRecordsTable();
   renderDashReminders();
+  renderCharts();
 }
 
 function renderRecordsTable() {
   const el = document.getElementById('records-container');
-  if (!records.length) {
-    el.innerHTML = '<div class="empty-state"><div class="icon">&#128196;</div><div>No records yet — add your first health record to get started.</div></div>';
+  updatePatientSelector();
+  const visible = getVisibleRecords();
+  if (!visible.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">&#128196;</div><div>No records match your current filters.</div></div>';
+    renderCharts();
     return;
   }
-  const rows = [...records].reverse().slice(0,8).map((r,i) => `
+  const rows = visible.slice(0,8).map((r) => {
+    const idx = records.findIndex(item => item.id === r.id);
+    return `
     <tr>
-      <td><strong>${r.name}</strong></td>
+      <td><strong>${escHtml(r.name)}</strong></td>
       <td>${r.age || '—'}</td>
-      <td>${r.diagnosis || '—'}</td>
-      <td>${r.bp || '—'}</td>
+      <td>${escHtml(r.diagnosis || '—')}</td>
+      <td>${escHtml(r.bp || '—')}</td>
       <td>${r.date ? new Date(r.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'2-digit'}) : '—'}</td>
       <td>
-        <button class="btn-sm" onclick="viewRecord(${records.length-1-i})">View</button>
-        <button class="btn-sm danger" onclick="deleteRecord(${records.length-1-i})">Delete</button>
+        <button class="btn-sm" onclick="viewRecord(${idx})">View</button>
+        <button class="btn-sm danger" onclick="deleteRecord(${idx})">Delete</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
   el.innerHTML = `<table class="records-table"><thead><tr><th>Name</th><th>Age</th><th>Diagnosis</th><th>BP</th><th>Date</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>`;
+  renderCharts();
 }
 
 function renderDashReminders() {
@@ -594,6 +771,8 @@ function saveRecord() {
     notes: document.getElementById('f-notes').value.trim(),
   };
   records.push(record);
+  saveFileToIndexedDB(record.id, document.getElementById('f-file').files);
+  saveFileToIndexedDB(record.id, document.getElementById('f-file').files);
   saveUserData();
   showToast('Record saved successfully');
   clearForm();
@@ -765,52 +944,143 @@ function triggerPushNotification(name, dose, note) {
   setTimeout(() => document.getElementById('push-popup').classList.remove('show'), 8000);
 }
 
-// ==================== AI DRUG CHECK ====================
+// ==================== SEPARATE AI ASSISTANT + DRUG CHECK ====================
 function toggleDrugPanel() {
   drugPanelOpen = !drugPanelOpen;
   document.getElementById('drug-panel').classList.toggle('open', drugPanelOpen);
   if (drugPanelOpen) document.getElementById('drug-input').focus();
 }
 
-async function sendDrugMsg() {
+function toggleAiPanel() {
+  aiPanelOpen = !aiPanelOpen;
+  document.getElementById('ai-panel').classList.toggle('open', aiPanelOpen);
+  if (aiPanelOpen) document.getElementById('ai-input').focus();
+}
+
+function sendAiMsg() {
+  const input = document.getElementById('ai-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const chat = document.getElementById('ai-chat');
+  chat.innerHTML += `<div class="dc-msg user">${escHtml(text)}</div>`;
+  input.value = '';
+  const latest = [...records].sort((a,b) => (b.date || '').localeCompare(a.date || ''))[0];
+  let reply = 'I can summarize records, find missing vitals, and suggest what to export.';
+  const q = text.toLowerCase();
+  if (!records.length) reply = 'No records are saved yet. Add a patient record first so I can summarize it.';
+  else if (q.includes('summary') || q.includes('summarize') || q.includes('latest')) reply = `Latest record: ${latest.name}, BP ${latest.bp || 'not added'}, heart rate ${latest.hr || 'not added'}, weight ${latest.weight || 'not added'} kg, diagnosis ${latest.diagnosis || 'not added'}. Total records: ${records.length}.`;
+  else if (q.includes('track') || q.includes('missing')) reply = ['bp','hr','weight','followup'].filter(k => !latest[k]).length ? 'Your latest record is missing: ' + ['bp','hr','weight','followup'].filter(k => !latest[k]).join(', ') + '. Add these for stronger charts and reports.' : 'Your latest record has the main vitals. Keep adding entries over time for better trends.';
+  else if (q.includes('pdf') || q.includes('report')) reply = 'Use Download Report in the navigation or dashboard to export a patient report.';
+  chat.innerHTML += `<div class="dc-msg bot">${escHtml(reply)}</div>`;
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function sendDrugMsg() {
   const input = document.getElementById('drug-input');
   const text = input.value.trim();
   if (!text) return;
   const chat = document.getElementById('drug-chat');
-  const btn = document.getElementById('drug-send-btn');
-
-  chat.innerHTML += `<div class="dc-msg user">${escHtml(text)}</div>`;
+  const meds = text.toLowerCase().split(',').map(m => m.trim()).filter(Boolean);
+  const rules = [
+    { pair: ['ibuprofen','aspirin'], level: 'Moderate', note: 'May increase stomach bleeding risk.' },
+    { pair: ['warfarin','aspirin'], level: 'High', note: 'May increase bleeding risk. Ask a doctor or pharmacist.' },
+    { pair: ['warfarin','ibuprofen'], level: 'High', note: 'May increase bleeding risk and stomach irritation.' },
+    { pair: ['metformin','contrast'], level: 'Moderate', note: 'Kidney function review may be needed around contrast scans.' },
+    { pair: ['paracetamol','alcohol'], level: 'Moderate', note: 'Can increase liver stress.' }
+  ];
+  const matches = rules.filter(rule => rule.pair.every(item => meds.includes(item)));
+  const reply = matches.length ? matches.map(m => `${m.level}: ${m.pair.join(' + ')} - ${m.note}`).join('\n') : 'No built-in interaction found in this demo list. Always verify medicines with a qualified professional.';
+  chat.innerHTML += `<div class="dc-msg user">${escHtml(text)}</div><div class="dc-msg bot">${escHtml(reply).replace(/\n/g,'<br>')}</div>`;
   input.value = '';
-  btn.disabled = true;
-  const loadId = 'load-' + Date.now();
-  chat.innerHTML += `<div class="dc-msg loading" id="${loadId}">Checking drug information...</div>`;
-  chat.scrollTop = chat.scrollHeight;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: 'You are a clinical pharmacist assistant integrated into MediTrack, a personal health dashboard. Answer questions about drug interactions, side effects, dosage guidelines, contraindications, and medication safety clearly and concisely. Always end with a brief note that the user should consult their doctor or pharmacist before making any changes. Do not diagnose or prescribe. Keep responses under 200 words unless the question requires more detail. Do not use markdown headers or bullet asterisks — use plain text with dashes for lists.',
-        messages: [{ role: 'user', content: text }]
-      })
-    });
-    const data = await res.json();
-    const reply = data.content?.map(c => c.text || '').join('') || 'Sorry, I could not get a response. Please try again.';
-    document.getElementById(loadId)?.remove();
-    chat.innerHTML += `<div class="dc-msg bot">${escHtml(reply).replace(/\n/g,'<br>')}</div>`;
-  } catch (e) {
-    document.getElementById(loadId)?.remove();
-    chat.innerHTML += `<div class="dc-msg bot">Network error — please check your connection and try again.</div>`;
-  }
-  btn.disabled = false;
   chat.scrollTop = chat.scrollHeight;
 }
 
 function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function parseBp(bp) {
+  const match = String(bp || '').match(/(\d{2,3})\s*\/\s*(\d{2,3})/);
+  return match ? Number(match[1]) : null;
+}
+
+function renderCharts() {
+  const canvas1 = document.getElementById('vitals-chart');
+  const canvas2 = document.getElementById('med-chart');
+  if (!canvas1 || !canvas2) return;
+  const list = getVisibleRecords().slice().sort((a,b) => (a.date || '').localeCompare(b.date || ''));
+  const labels = list.map(r => r.date ? new Date(r.date).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '');
+  if (window.Chart) {
+    if (vitalsChart) vitalsChart.destroy();
+    if (medChart) medChart.destroy();
+    vitalsChart = new Chart(canvas1, {
+      type: 'line',
+      data: { labels, datasets: [
+        { label: 'Systolic BP', data: list.map(r => parseBp(r.bp)), borderColor: '#0f766e', tension: .35 },
+        { label: 'Weight', data: list.map(r => Number(r.weight) || null), borderColor: '#2563eb', tension: .35 },
+        { label: 'Heart rate', data: list.map(r => Number(r.hr) || null), borderColor: '#f59e0b', tension: .35 }
+      ] },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+    const counts = {};
+    list.forEach(r => String(r.meds || '').split(/\n|,/).map(x => x.trim()).filter(Boolean).forEach(m => counts[m] = (counts[m] || 0) + 1));
+    medChart = new Chart(canvas2, {
+      type: 'doughnut',
+      data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: ['#0f766e','#2563eb','#f59e0b','#ef4444','#8b5cf6'] }] },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+    return;
+  }
+  drawCanvasFallback(canvas1, 'Vitals chart', list.map(r => Number(r.hr) || parseBp(r.bp) || Number(r.weight) || 0));
+  drawCanvasFallback(canvas2, 'Medication frequency', list.map(r => String(r.meds || '').split(/\n|,/).filter(Boolean).length));
+}
+
+function drawCanvasFallback(canvas, title, values) {
+  const box = canvas.parentElement.getBoundingClientRect();
+  canvas.width = Math.max(320, box.width);
+  canvas.height = Math.max(240, box.height);
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#64748b';
+  ctx.font = '14px Segoe UI, Arial';
+  ctx.fillText(title + ' (offline)', 16, 24);
+  ctx.strokeStyle = '#0f766e';
+  ctx.beginPath();
+  const max = Math.max(...values, 1);
+  values.forEach((v,i) => {
+    const x = 24 + (i / Math.max(1, values.length - 1)) * (canvas.width - 48);
+    const y = canvas.height - 32 - (v / max) * (canvas.height - 72);
+    i ? ctx.lineTo(x,y) : ctx.moveTo(x,y);
+  });
+  ctx.stroke();
+}
+
+function downloadReport() {
+  const jsPDF = window.jspdf && window.jspdf.jsPDF;
+  const list = getVisibleRecords();
+  if (!list.length) { showToast('No records to export'); return; }
+  if (jsPDF) {
+    const doc = new jsPDF();
+    let y = 16;
+    doc.setFontSize(18); doc.text('MediTrack Patient Report', 14, y); y += 10;
+    doc.setFontSize(10); doc.text('Generated: ' + new Date().toLocaleString('en-IN'), 14, y); y += 10;
+    list.forEach((r, i) => {
+      if (y > 270) { doc.addPage(); y = 16; }
+      doc.setFont(undefined, 'bold'); doc.text(`${i+1}. ${r.name} - ${r.date ? new Date(r.date).toLocaleDateString('en-IN') : ''}`, 14, y); y += 6;
+      doc.setFont(undefined, 'normal');
+      doc.text(doc.splitTextToSize(`BP: ${r.bp || '-'} | HR: ${r.hr || '-'} | Weight: ${r.weight || '-'} kg | Diagnosis: ${r.diagnosis || '-'}`, 180), 14, y); y += 10;
+      if (r.meds) { doc.text(doc.splitTextToSize('Meds: ' + r.meds, 180), 14, y); y += 8; }
+    });
+    doc.save('MediTrack_Report.pdf');
+  } else {
+    window.print();
+  }
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle('dark-mode');
+  localStorage.setItem('mt_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+  renderCharts();
 }
 
 // ==================== FILE INPUT ====================
@@ -829,6 +1099,8 @@ function showToast(msg) {
 
 // ==================== AUTO-LOGIN ====================
 (function() {
+  if (localStorage.getItem('mt_theme') === 'dark') document.body.classList.add('dark-mode');
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
   const session = localStorage.getItem('mt_session');
   if (session) {
     try {
@@ -841,3 +1113,4 @@ function showToast(msg) {
 </script>
 </body>
 </html>
+
