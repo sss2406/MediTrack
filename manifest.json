@@ -1,9 +1,0 @@
-{
-  "name": "MediTrack",
-  "short_name": "MediTrack",
-  "description": "Personal health records and medication management dashboard.",
-  "start_url": "./meditrack-layout-preserved.html",
-  "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#0f766e"
-}
