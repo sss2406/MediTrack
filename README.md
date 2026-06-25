@@ -12,7 +12,7 @@
 
 | Dashboard | Add Record | Reminders |
 |---|---|---|
-| ![Dashboard](screenshotsmeditrack/dashboard.png) | ![Add Record](screenshotsmeditrack/addrecords.png) | ![Reminders](./screenshots/reminders.png) |
+| ![Dashboard](screenshotsmeditrack/dashboard.png) | ![Add Record](screenshotsmeditrack/addrecords.png) | ![Reminders](screenshotsmeditrack/reminders.png) |
 
 ---
 
