@@ -1,11 +1,13 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>MediTrack — Personal Health Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --c-primary: #0f766e;
@@ -214,7 +216,7 @@ body.dark-mode .auth-logo h1 span:last-child { color: #e5e7eb !important; }
   border: 1px solid var(--c-border);
   border-radius: 8px;
   padding: 10px 12px;
-  background: var(--c-card);
+  background: var(--c-card, var(--c-surface));
   color: var(--c-text);
 }
 .chart-grid {
@@ -227,7 +229,7 @@ body.dark-mode .auth-logo h1 span:last-child { color: #e5e7eb !important; }
   border: 1px solid var(--c-border);
   border-radius: 12px;
   padding: 12px;
-  background: var(--c-card);
+  background: var(--c-card, var(--c-surface));
 }
 .chart-box canvas { width: 100% !important; height: 100% !important; }
 .patient-switcher {
@@ -256,6 +258,81 @@ body.dark-mode .auth-logo h1 span:last-child { color: #e5e7eb !important; }
   .patient-switcher { width: 100%; }
   .patient-switcher select { flex: 1; min-width: 0; }
 }
+
+/* ===================================================================
+   VISUAL POLISH PASS — gradient accents, motion, elevation
+   =================================================================== */
+:root {
+  --c-primary-deep: #064e45;
+  --c-accent: #2563eb;
+  --c-accent-light: #dbeafe;
+  --shadow-lift: 0 10px 24px -8px rgba(15,118,110,0.22);
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+*:focus-visible { outline: 2px solid var(--c-primary-mid); outline-offset: 2px; border-radius: 4px; }
+
+.nav-brand {
+  background: linear-gradient(120deg, var(--c-primary) 10%, var(--c-primary-mid) 90%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+}
+.nav-brand span { -webkit-text-fill-color: var(--c-text); color: var(--c-text); background: none; }
+
+nav { backdrop-filter: saturate(1.1); }
+
+.stat-card, .card, .reminder-item, .auth-card { transition: transform .2s var(--ease), box-shadow .2s var(--ease), border-color .2s var(--ease); }
+.stat-card { position: relative; overflow: hidden; }
+.stat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--c-primary), var(--c-primary-mid));
+  opacity: 0; transition: opacity .2s var(--ease);
+}
+.stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); border-color: var(--c-primary-mid); }
+.stat-card:hover::before { opacity: 1; }
+.stat-card .value { background: linear-gradient(120deg, var(--c-primary-deep), var(--c-primary-mid)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+
+.card:hover { box-shadow: var(--shadow-md); }
+.records-table tr td { transition: background .15s var(--ease); }
+
+.btn-primary, .btn-outline, .btn-sm, .nav-btn, .drug-fab-btn { transition: transform .15s var(--ease), background .15s var(--ease), box-shadow .15s var(--ease), color .15s var(--ease), border-color .15s var(--ease); }
+.btn-primary:active, .btn-outline:active, .btn-sm:active { transform: scale(.97); }
+.btn-primary:hover { box-shadow: 0 6px 16px -4px rgba(15,118,110,.45); }
+.drug-fab-btn:hover { box-shadow: 0 8px 22px -4px rgba(15,118,110,.5); }
+
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.animate-in { animation: fadeInUp .45s var(--ease) both; }
+.stats-grid .stat-card:nth-child(1){ animation-delay: .02s; }
+.stats-grid .stat-card:nth-child(2){ animation-delay: .08s; }
+.stats-grid .stat-card:nth-child(3){ animation-delay: .14s; }
+.stats-grid .stat-card:nth-child(4){ animation-delay: .20s; }
+.page.active .card.animate-in:nth-of-type(1){ animation-delay: .06s; }
+.page.active .card.animate-in:nth-of-type(2){ animation-delay: .12s; }
+.page.active .card.animate-in:nth-of-type(3){ animation-delay: .18s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
+
+/* ---- Skeleton loading (shimmer) ---- */
+.skel { position: relative; overflow: hidden; border-radius: 6px; background: #e7f3f0; }
+.skel::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.75) 50%, transparent 70%);
+  transform: translateX(-100%); animation: skel-shimmer 1.3s ease-in-out infinite;
+}
+body.dark-mode .skel { background: #1b2536; }
+body.dark-mode .skel::after { background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.08) 50%, transparent 70%); }
+@keyframes skel-shimmer { 100% { transform: translateX(100%); } }
+.skel-stat { height: 64px; border-radius: 10px; }
+.skel-row { height: 38px; border-radius: 6px; margin-bottom: 8px; }
+.skel-reminder { height: 54px; border-radius: 6px; margin-bottom: 10px; }
+.skel-block { height: 100%; min-height: 160px; border-radius: 10px; }
+
+/* ---- Demo mode entry point ---- */
+.demo-cta { width: 100%; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.demo-hint { font-size: 11.5px; color: var(--c-muted); text-align: center; margin-top: 8px; line-height: 1.5; }
+.demo-divider { display: flex; align-items: center; gap: 10px; margin: 14px 0; color: var(--c-muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; }
+.demo-divider::before, .demo-divider::after { content: ''; flex: 1; height: 1px; background: var(--c-border); }
 </style>
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#0f766e">
@@ -289,7 +366,11 @@ body.dark-mode .auth-logo h1 span:last-child { color: #e5e7eb !important; }
       <div class="auth-logo">
         <h1><span style="color:#0f766e">Medi</span><span style="color:#0f172a">Track</span></h1>
         <p>Personal health records and medication management</p>
+        <p class="feature-note" style="margin-top:6px">Built for patients managing chronic conditions, longitudinally</p>
       </div>
+      <button class="btn-outline demo-cta" onclick="quickDemoLogin()">⚡ View live demo (no signup)</button>
+      <div class="demo-hint">Loads a sample workspace with patient records, vitals trends &amp; reminders already populated.</div>
+      <div class="demo-divider">or sign in</div>
       <div class="auth-tabs">
         <button class="auth-tab active" onclick="switchAuthTab('login')">Sign in</button>
         <button class="auth-tab" onclick="switchAuthTab('register')">Create account</button>
@@ -301,7 +382,8 @@ body.dark-mode .auth-logo h1 span:last-child { color: #e5e7eb !important; }
         <div class="field"><label>Password</label><input type="password" id="login-pass" placeholder="Enter password" /></div>
         <div id="login-msg" class="auth-msg"></div>
         <button class="btn-primary" style="margin-top:12px" onclick="doLogin()">Sign in</button>
-        <p style="font-size:12px;color:var(--c-muted);text-align:center;margin-top:10px;">Developed and Deployed by Sri Sudharshana S</p>
+        <p style="font-size:11px;color:var(--c-muted);text-align:center;margin-top:10px;">Demo credentials: demo@meditrack.com / demo1234</p>
+        <p style="font-size:12px;color:var(--c-muted);text-align:center;margin-top:4px;">Developed and Deployed by Sri Sudharshana S</p>
       </div>
 
       <!-- REGISTER FORM -->
@@ -329,13 +411,13 @@ body.dark-mode .auth-logo h1 span:last-child { color: #e5e7eb !important; }
   </div>
 
   <div class="stats-grid" id="stats-grid">
-    <div class="stat-card"><div class="label">Total records</div><div class="value" id="stat-records">0</div><div class="sub">patient entries</div></div>
-    <div class="stat-card"><div class="label">Active medications</div><div class="value" id="stat-meds">0</div><div class="sub">current reminders</div></div>
-    <div class="stat-card"><div class="label">Follow-ups due</div><div class="value" id="stat-followups">0</div><div class="sub">upcoming dates</div></div>
-    <div class="stat-card"><div class="label">Last entry</div><div class="value" style="font-size:1rem;padding-top:4px" id="stat-last">—</div><div class="sub">most recent record</div></div>
+    <div class="stat-card animate-in"><div class="label">Total records</div><div class="value" id="stat-records">0</div><div class="sub">patient entries</div></div>
+    <div class="stat-card animate-in"><div class="label">Active medications</div><div class="value" id="stat-meds">0</div><div class="sub">current reminders</div></div>
+    <div class="stat-card animate-in"><div class="label">Follow-ups due</div><div class="value" id="stat-followups">0</div><div class="sub">upcoming dates</div></div>
+    <div class="stat-card animate-in"><div class="label">Last entry</div><div class="value" style="font-size:1rem;padding-top:4px" id="stat-last">—</div><div class="sub">most recent record</div></div>
   </div>
 
-  <div class="card">
+  <div class="card animate-in">
     <div class="card-header">
       <span class="card-title">Recent records</span>
       <button class="btn-sm" onclick="showPage('add-record')">+ Add record</button>
@@ -355,7 +437,7 @@ body.dark-mode .auth-logo h1 span:last-child { color: #e5e7eb !important; }
     </div>
   </div>
 
-  <div class="card">
+  <div class="card animate-in">
     <div class="card-header">
       <span class="card-title">Health charts</span>
       <span class="badge badge-teal">Chart.js</span>
@@ -366,7 +448,7 @@ body.dark-mode .auth-logo h1 span:last-child { color: #e5e7eb !important; }
     </div>
   </div>
 
-  <div class="card">
+  <div class="card animate-in">
     <div class="card-header"><span class="card-title">Today's reminders</span><span class="badge badge-teal" id="reminder-count-badge">0 active</span></div>
     <div id="dash-reminders"><div class="empty-state" style="padding:1rem 0"><div>No reminders set. Go to the Reminders tab to add medications.</div></div></div>
   </div>
@@ -494,7 +576,7 @@ body.dark-mode .auth-logo h1 span:last-child { color: #e5e7eb !important; }
       <div class="drug-panel-header">
         <div style="width:28px;height:28px;border-radius:6px;background:var(--c-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0">AI</div>
         <h4>AI Assistant</h4>
-        <button class="close-panel" onclick="toggleAiPanel()">Ã—</button>
+        <button class="close-panel" onclick="toggleAiPanel()">×</button>
       </div>
       <div class="drug-chat" id="ai-chat">
         <div class="dc-msg bot">Ask for a summary of your records, missing vitals, or what to export. This works locally without sending health data anywhere.</div>
@@ -513,7 +595,7 @@ body.dark-mode .auth-logo h1 span:last-child { color: #e5e7eb !important; }
       <div class="drug-panel-header">
         <div style="width:28px;height:28px;border-radius:6px;background:var(--c-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0">+</div>
         <h4>Drug Check</h4>
-        <button class="close-panel" onclick="toggleDrugPanel()">Ã—</button>
+        <button class="close-panel" onclick="toggleDrugPanel()">×</button>
       </div>
       <div class="drug-chat" id="drug-chat">
         <div class="dc-msg bot">Enter two or more medicines separated by commas to check common demo interactions.</div>
@@ -558,7 +640,7 @@ function doLogin() {
   if (!email || !pass) { msg.textContent = 'Please fill in all fields.'; return; }
 
   const users = JSON.parse(localStorage.getItem('mt_users') || '[]');
-  users.push(DEMO_USER);
+  if (!users.find(u => u.email.toLowerCase() === DEMO_USER.email)) users.push(DEMO_USER);
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === pass);
   if (!user) { msg.textContent = 'Incorrect email or password.'; return; }
 
@@ -612,14 +694,92 @@ function enterApp() {
   const h = new Date().getHours();
   const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
   document.getElementById('dash-greeting').textContent = greet + ', ' + currentUser.name.split(' ')[0];
-  showPage('add-record');
+  showPage('dashboard');
 }
 
 function loadUserData() {
   const key = 'mt_data_' + currentUser.email;
-  const saved = JSON.parse(localStorage.getItem(key) || '{"records":[],"reminders":[]}');
+  let saved = JSON.parse(localStorage.getItem(key) || 'null');
+  if (!saved && currentUser.email === DEMO_USER.email) {
+    saved = getDemoSeedData();
+    localStorage.setItem(key, JSON.stringify(saved));
+  }
+  saved = saved || { records: [], reminders: [] };
   records = saved.records || [];
   reminders = saved.reminders || [];
+}
+
+// ==================== DEMO SEED DATA ====================
+// Generates a realistic, populated workspace so a recruiter or reviewer
+// sees a working product on first load instead of an empty state.
+function getDemoSeedData() {
+  const daysAgo = (n) => new Date(Date.now() - n * 86400000).toISOString();
+  const records = [
+    {
+      id: Date.now() - 200 * 86400000, date: daysAgo(118), name: 'Arjun Mehta', age: '54', gender: 'Male',
+      mobile: '+91 98765 11223', email: 'arjun.mehta@example.com', doctor: 'Dr. Kavitha Iyer',
+      height: '171', weight: '82', bp: '148/94', hr: '88', temp: '37.1',
+      followup: new Date(Date.now() + 9 * 86400000).toISOString().slice(0,10),
+      symptoms: 'Headaches, occasional dizziness, fatigue by evening.',
+      diagnosis: 'Stage 1 Hypertension, newly diagnosed', meds: 'Amlodipine 5mg\nAspirin 75mg',
+      notes: 'Advised low-sodium diet and 30 min daily walk. Recheck BP in 2 weeks.'
+    },
+    {
+      id: Date.now() - 165 * 86400000, date: daysAgo(91), name: 'Arjun Mehta', age: '54', gender: 'Male',
+      mobile: '+91 98765 11223', email: 'arjun.mehta@example.com', doctor: 'Dr. Kavitha Iyer',
+      height: '171', weight: '80', bp: '138/88', hr: '82', temp: '36.9',
+      followup: new Date(Date.now() + 30 * 86400000).toISOString().slice(0,10),
+      symptoms: 'Mild improvement, occasional headache.', diagnosis: 'Hypertension — responding to treatment',
+      meds: 'Amlodipine 5mg\nAspirin 75mg', notes: 'BP trending down. Continue current dosage, recheck lipid panel.'
+    },
+    {
+      id: Date.now() - 100 * 86400000, date: daysAgo(58), name: 'Arjun Mehta', age: '54', gender: 'Male',
+      mobile: '+91 98765 11223', email: 'arjun.mehta@example.com', doctor: 'Dr. Kavitha Iyer',
+      height: '171', weight: '79', bp: '132/85', hr: '78', temp: '36.8',
+      followup: new Date(Date.now() + 60 * 86400000).toISOString().slice(0,10),
+      symptoms: 'Asymptomatic.', diagnosis: 'Hypertension — well controlled',
+      meds: 'Amlodipine 5mg\nAspirin 75mg', notes: 'Lipid panel normal. Maintain diet and exercise routine.'
+    },
+    {
+      id: Date.now() - 60 * 86400000, date: daysAgo(34), name: 'Priya Sharma', age: '47', gender: 'Female',
+      mobile: '+91 98201 44556', email: 'priya.sharma@example.com', doctor: 'Dr. Rohan Bhatt',
+      height: '160', weight: '71', bp: '124/80', hr: '90', temp: '37.0',
+      followup: new Date(Date.now() + 18 * 86400000).toISOString().slice(0,10),
+      symptoms: 'Increased thirst, frequent urination, mild fatigue.', diagnosis: 'Type 2 Diabetes Mellitus, newly diagnosed',
+      meds: 'Metformin 500mg', notes: 'HbA1c 7.8%. Diabetes education provided, dietician referral made.'
+    },
+    {
+      id: Date.now() - 25 * 86400000, date: daysAgo(16), name: 'Priya Sharma', age: '47', gender: 'Female',
+      mobile: '+91 98201 44556', email: 'priya.sharma@example.com', doctor: 'Dr. Rohan Bhatt',
+      height: '160', weight: '69', bp: '122/78', hr: '84', temp: '36.9',
+      followup: new Date(Date.now() + 45 * 86400000).toISOString().slice(0,10),
+      symptoms: 'Improved energy levels, thirst reduced.', diagnosis: 'Type 2 Diabetes Mellitus — improving',
+      meds: 'Metformin 500mg\nVitamin D3', notes: 'Fasting glucose down from 168 to 132 mg/dL. Continue current plan.'
+    },
+    {
+      id: Date.now() - 4 * 86400000, date: daysAgo(4), name: 'Priya Sharma', age: '47', gender: 'Female',
+      mobile: '+91 98201 44556', email: 'priya.sharma@example.com', doctor: 'Dr. Rohan Bhatt',
+      height: '160', weight: '68', bp: '120/78', hr: '80', temp: '36.8',
+      followup: new Date(Date.now() + 30 * 86400000).toISOString().slice(0,10),
+      symptoms: 'Asymptomatic, walking 20 min daily.', diagnosis: 'Type 2 Diabetes Mellitus — stable',
+      meds: 'Metformin 500mg\nVitamin D3', notes: 'HbA1c improved to 6.6%. Encouraged to maintain routine.'
+    }
+  ];
+  const reminders = [
+    { id: Date.now() - 1, name: 'Amlodipine 5mg', dose: '1 tablet', time: '08:00', freq: 'daily', note: 'Take after breakfast' },
+    { id: Date.now() - 2, name: 'Metformin 500mg', dose: '1 tablet', time: '20:00', freq: 'twice', note: 'Take after dinner' },
+    { id: Date.now() - 3, name: 'Aspirin 75mg', dose: '1 tablet', time: '08:30', freq: 'daily', note: 'Take with food' },
+    { id: Date.now() - 4, name: 'Vitamin D3', dose: '1 capsule', time: '09:00', freq: 'weekly', note: 'Once a week, after a meal' }
+  ];
+  return { records, reminders };
+}
+
+function quickDemoLogin() {
+  currentUser = DEMO_USER;
+  localStorage.setItem('mt_session', JSON.stringify(DEMO_USER));
+  loadUserData();
+  enterApp();
+  showToast('Demo workspace loaded');
 }
 
 function saveUserData() {
@@ -662,7 +822,7 @@ function updatePatientSelector() {
 
 function setActivePatient(name) {
   activePatient = name;
-  renderDashboard();
+  renderDashboard(true);
 }
 
 function addPatientProfile() {
@@ -684,22 +844,38 @@ function showPage(page) {
 }
 
 // ==================== DASHBOARD ====================
-function renderDashboard() {
-  document.getElementById('stat-records').textContent = records.length;
+function renderDashboard(skipSkeleton) {
+  if (skipSkeleton !== true) {
+    paintDashboardSkeleton();
+    setTimeout(() => renderDashboard(true), 480);
+    return;
+  }
   const medCount = reminders.length;
-  document.getElementById('stat-meds').textContent = medCount;
-
   const today = new Date().toISOString().slice(0,10);
   const upcoming = records.filter(r => r.followup && r.followup >= today).length;
-  document.getElementById('stat-followups').textContent = upcoming;
-
   const last = records.length ? records[records.length-1] : null;
-  document.getElementById('stat-last').textContent = last ? new Date(last.date).toLocaleDateString('en-IN', {day:'numeric',month:'short'}) : '—';
+  const lastLabel = last ? new Date(last.date).toLocaleDateString('en-IN', {day:'numeric',month:'short'}) : '—';
+
+  const stats = document.getElementById('stats-grid');
+  if (stats) stats.innerHTML = `
+    <div class="stat-card animate-in"><div class="label">Total records</div><div class="value" id="stat-records">${records.length}</div><div class="sub">patient entries</div></div>
+    <div class="stat-card animate-in"><div class="label">Active medications</div><div class="value" id="stat-meds">${medCount}</div><div class="sub">current reminders</div></div>
+    <div class="stat-card animate-in"><div class="label">Follow-ups due</div><div class="value" id="stat-followups">${upcoming}</div><div class="sub">upcoming dates</div></div>
+    <div class="stat-card animate-in"><div class="label">Last entry</div><div class="value" style="font-size:1rem;padding-top:4px" id="stat-last">${lastLabel}</div><div class="sub">most recent record</div></div>`;
 
   updatePatientSelector();
   renderRecordsTable();
   renderDashReminders();
   renderCharts();
+}
+
+function paintDashboardSkeleton() {
+  const stats = document.getElementById('stats-grid');
+  if (stats) stats.innerHTML = Array(4).fill('<div class="stat-card"><div class="skel" style="height:11px;width:55%;margin-bottom:10px;"></div><div class="skel skel-stat" style="height:26px;width:45%;"></div></div>').join('');
+  const rc = document.getElementById('records-container');
+  if (rc) rc.innerHTML = '<div>' + Array(4).fill('<div class="skel skel-row"></div>').join('') + '</div>';
+  const dr = document.getElementById('dash-reminders');
+  if (dr) dr.innerHTML = Array(2).fill('<div class="skel skel-reminder"></div>').join('');
 }
 
 function renderRecordsTable() {
@@ -790,7 +966,7 @@ function deleteRecord(idx) {
   if (!confirm('Delete this record? This cannot be undone.')) return;
   records.splice(idx, 1);
   saveUserData();
-  renderDashboard();
+  renderDashboard(true);
   showToast('Record deleted');
 }
 
@@ -839,11 +1015,17 @@ function addReminder() {
   ['r-name','r-dose','r-time','r-note'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('r-freq').value = 'daily';
   scheduleReminder(reminder);
-  renderReminders();
+  renderReminders(true);
   showToast('Reminder set for ' + time);
 }
 
-function renderReminders() {
+function renderReminders(skipSkeleton) {
+  if (skipSkeleton !== true) {
+    const skelEl = document.getElementById('reminders-list');
+    if (skelEl) skelEl.innerHTML = Array(3).fill('<div class="skel skel-reminder"></div>').join('');
+    setTimeout(() => renderReminders(true), 420);
+    return;
+  }
   const el = document.getElementById('reminders-list');
   const b2 = document.getElementById('reminder-badge-2');
   b2.textContent = reminders.length + ' set';
@@ -872,7 +1054,7 @@ function renderReminders() {
 function deleteReminder(id) {
   reminders = reminders.filter(r => r.id !== id);
   saveUserData();
-  renderReminders();
+  renderReminders(true);
   showToast('Reminder removed');
 }
 
@@ -906,7 +1088,7 @@ function allowNotif() {
   if ('Notification' in window) {
     Notification.requestPermission().then(perm => {
       notifPermission = perm;
-      renderReminders();
+      renderReminders(true);
       if (perm === 'granted') {
         showToast('Notifications enabled');
         reminders.forEach(scheduleReminder);
@@ -916,7 +1098,7 @@ function allowNotif() {
     });
   } else {
     notifPermission = 'granted';
-    renderReminders();
+    renderReminders(true);
     showToast('Notifications enabled (simulated)');
     setTimeout(() => triggerPushNotification('Notification test', '', 'Reminders are now active'), 3000);
   }
@@ -925,7 +1107,7 @@ function allowNotif() {
 function denyNotif() {
   document.getElementById('notif-modal').classList.remove('open');
   notifPermission = 'denied';
-  renderReminders();
+  renderReminders(true);
 }
 
 function triggerPushNotification(name, dose, note) {
@@ -1113,4 +1295,3 @@ function showToast(msg) {
 </script>
 </body>
 </html>
-
